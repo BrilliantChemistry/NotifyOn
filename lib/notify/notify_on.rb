@@ -15,7 +15,7 @@ module Notify
 		def notify_of_state_change
 			# puts "notify_of_state_change >> "
 			self.class.notify_list[:change].each do |notification|
-				Rails.logger.warn "STATE_CHANGE: looking for #{notification[:field]} = #{notification[:value]} on #{self}"
+				Rails.logger.warn "STATE_CHANGE with #{notification[:class_name]}: condition #{notification[:field]} = #{notification[:value]} on #{self}"
 
 				trigger_field = notification[:field].to_sym
 				trigger_value = notification[:value]
@@ -28,7 +28,7 @@ module Notify
 				# puts "Equal: #{self.read_attribute(trigger_field) == trigger_value}"
 				if self.changed_attributes.key?(trigger_field) && self.read_attribute(trigger_field) == trigger_value
 					# puts "match"
-					# Rails.logger.warn "Match! Sending."
+					Rails.logger.warn "Match! Sending."
 					field_state_matched(notification)
 				# else
 				# 	puts "no match"
