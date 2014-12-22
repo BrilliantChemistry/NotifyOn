@@ -15,7 +15,7 @@ module Notify
 		def notify_of_state_change
 			# puts "notify_of_state_change >> "
 			self.class.notify_list[:change].each do |notification|
-				Rails.logger.info "STATE_CHANGE with #{notification[:class_name]}: condition #{notification[:field]} = #{notification[:value]} on #{self}"
+				Rails.logger.debug "STATE_CHANGE with #{notification[:class_name]}: condition #{notification[:field]} = #{notification[:value]} on #{self}, dirty? #{self.changed_attributes.key?(trigger_field)}, value: '#{self.public_send(trigger_field)}'"
 
 				trigger_field = notification[:field].to_sym
 				trigger_value = notification[:value]
@@ -26,10 +26,9 @@ module Notify
 				# puts "Was changed: #{self.changed_attributes.key?(trigger_field)}"
 				# puts "value: '#{self.public_send(trigger_field)}' and need: '#{trigger_value}'"
 				# puts "Equal: #{self.read_attribute(trigger_field) == trigger_value}"
-				Rails.logger.info "Object is: '#{self.public_send(trigger_field)}'"
-				if self.changed_attributes.key?(trigger_field) && self.public_send(trigger_field) == trigger_value
+				if self.changed_attributes.key?(trigger_field) && self.public_send(trigger_field).to_s == trigger_value.to_s
 					# puts "match"
-					Rails.logger.info "Match! Sending."
+					Rails.logger.debug "Match! Sending."
 					field_state_matched(notification)
 				# else
 				# 	puts "no match"
