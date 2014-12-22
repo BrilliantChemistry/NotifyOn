@@ -3,13 +3,7 @@ require 'test_helper'
 class NotifyOnTest < ActiveSupport::TestCase
 
 	def test_created_on_should_be_called
-
-		klass = Class.new Person do
-			notify_on :create, with: "Notification"
-		end
-		Object.const_set "TestObject", klass
-
-		p = klass.new
+		p = Person.new
 		# p.expects(:notify_of_creation)
 		p.expects(:send_notification)
 		p.save
@@ -19,11 +13,7 @@ class NotifyOnTest < ActiveSupport::TestCase
 		puts "\n"
 		puts "Field Change SHOULD be Called! >>"
 
-		klass = Class.new Person do
-			notify_on :state, "active", with: "Notification"
-		end
-
-		p = klass.new
+		p = Person.new
 		p.save!
 		p.expects(:field_state_matched).once
 		p.state = "active"
@@ -35,11 +25,7 @@ class NotifyOnTest < ActiveSupport::TestCase
 	def test_field_changed_should_not_be_called
 		puts "\n"
 		puts "Field Change Should NOT be Called! >>"
-		klass = Class.new Person do
-			notify_on :state, "test", with: "Notification"
-		end
-
-		p = klass.new
+		p = Person.new
 		p.save!
 		p.expects(:field_state_matched).never
 		p.state = "second_test"
@@ -47,10 +33,7 @@ class NotifyOnTest < ActiveSupport::TestCase
 	end
 
 	def test_other_model_does_not_have_notifications
-		klass = Class.new Product do
-			notify_on :state, "accepted", with: "Notification"
-		end
-		p = klass.new
+		p = Product.new
 		p.expects(:notify_of_creation).never
 		p.save!
 		
@@ -61,6 +44,16 @@ class NotifyOnTest < ActiveSupport::TestCase
 
 		p.expects(:field_state_matched).once
 		p.state = "accepted"
+		p.save!
+	end
+
+	def test_class_configuration_should_be_model_specific
+		# Load up the other classes with config to make sure it doesn't affect our person.
+		puts Category.notify_list
+		puts Job.notify_list
+
+		p = Product.new
+		p.expects(:notify_of_creation).never
 		p.save!
 	end
 end

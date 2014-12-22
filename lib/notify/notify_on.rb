@@ -4,10 +4,15 @@ module Notify
 
 		# instance methods
 		def notify_of_creation
-			# puts "notify_of_creation >> "
+			puts "notify_of_creation >> [#{self.class.name}] "
+			puts self.class.notify_list
+			# puts clazz.notify_list
+
+			config = self.class.notify_list[self.class.name]
+
 			# Rails.logger.warn "NOTIFY_OF_CREATION: #{self}"
 
-			self.class.notify_list[:create].each do |notification|
+			config[:create].each do |notification|
 				Rails.logger.warn "CREATE on #{self} with #{notification[:class_name]}"
 				send_notification(notification)
 			end
@@ -15,11 +20,12 @@ module Notify
 
 		def notify_of_state_change
 			# puts "notify_of_state_change >> "
-			self.class.notify_list[:change].each do |notification|
-				Rails.logger.warn "STATE_CHANGE with #{notification[:class_name]}: condition #{notification[:field]} = #{notification[:value]} on #{self}, dirty? #{self.changed_attributes.key?(trigger_field)}, value: '#{self.public_send(trigger_field)}'"
-
+			config = self.class.notify_list[self.class.name]
+			config[:change].each do |notification|
 				trigger_field = notification[:field].to_sym
 				trigger_value = notification[:value]
+
+				Rails.logger.warn "STATE_CHANGE with #{notification[:class_name]}: condition #{notification[:field]} = #{notification[:value]} on #{self}, dirty? #{self.changed_attributes.key?(trigger_field)}, value: '#{self.public_send(trigger_field)}'"
 
 				# puts"\n"
 				# puts "#{trigger_field} == #{trigger_value}"
@@ -73,6 +79,7 @@ module Notify
 				notification = {}
 				notification[:scheme] = type
 				notification[:class_name] = options[:with]
+				notification[:model_name] = name
 
 				# attempt to load the class and fail if not able to
 				# begin # the rescue block is not needed as runtime provides a better message.
@@ -103,8 +110,11 @@ module Notify
 				# puts self.notify_list
 
 				self.notify_list ||= {}
-				self.notify_list[notification[:scheme]] ||= []
-				self.notify_list[notification[:scheme]] << notification
+				model_config = self.notify_list[notification[:model_name]]
+				model_config ||= {}
+				model_config[notification[:scheme]] ||= []
+				model_config[notification[:scheme]] << notification
+				self.notify_list[notification[:model_name]] = model_config
 			end
 		end
 	end
