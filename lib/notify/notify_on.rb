@@ -24,9 +24,9 @@ module Notify
 				# puts "#{trigger_field} == #{trigger_value}"
 				# puts "Changed attributes: #{self.changed_attributes}"
 				# puts "Was changed: #{self.changed_attributes.key?(trigger_field)}"
-				# puts "value: '#{self.read_attribute(trigger_field)}' and need: '#{trigger_value}'"
+				# puts "value: '#{self.public_send(trigger_field)}' and need: '#{trigger_value}'"
 				# puts "Equal: #{self.read_attribute(trigger_field) == trigger_value}"
-				if self.changed_attributes.key?(trigger_field) && self.read_attribute(trigger_field) == trigger_value
+				if self.changed_attributes.key?(trigger_field) && self.public_send(trigger_field) == trigger_value
 					# puts "match"
 					Rails.logger.warn "Match! Sending."
 					field_state_matched(notification)

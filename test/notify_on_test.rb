@@ -47,11 +47,20 @@ class NotifyOnTest < ActiveSupport::TestCase
 	end
 
 	def test_other_model_does_not_have_notifications
-		p = Product.new
+		klass = Class.new Product do
+			notify_on :state, "accepted", with: "Notification"
+		end
+		p = klass.new
 		p.expects(:notify_of_creation).never
 		p.save!
+		
 		p.expects(:notify_of_creation).never
-		p.state = "active"
+		p.expects(:field_state_matched).never
+		p.state = "pending"
+		p.save!
+
+		p.expects(:field_state_matched).once
+		p.state = "accepted"
 		p.save!
 	end
 end
