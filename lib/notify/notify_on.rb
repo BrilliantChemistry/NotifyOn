@@ -4,8 +4,8 @@ module Notify
 
 		# instance methods
 		def notify_of_creation
-			puts "notify_of_creation >> [#{self.class.name}] "
-			puts self.class.notify_list
+			Rails.logger.debug "notify_of_creation >> [#{self.class.name}] "
+			Rails.logger.debug self.class.notify_list
 			# puts clazz.notify_list
 
 			config = self.class.notify_list[self.class.name]
@@ -13,7 +13,7 @@ module Notify
 			# Rails.logger.warn "NOTIFY_OF_CREATION: #{self}"
 
 			config[:create].each do |notification|
-				Rails.logger.warn "CREATE on #{self} with #{notification[:class_name]}"
+				Rails.logger.info "CREATE on #{self} with #{notification[:class_name]}"
 				send_notification(notification)
 			end
 		end
@@ -25,7 +25,7 @@ module Notify
 				trigger_field = notification[:field].to_sym
 				trigger_value = notification[:value]
 
-				Rails.logger.warn "STATE_CHANGE with #{notification[:class_name]}: condition #{notification[:field]} = #{notification[:value]} on #{self}, dirty? #{self.changed_attributes.key?(trigger_field)}, value: '#{self.public_send(trigger_field)}'"
+				Rails.logger.info "STATE_CHANGE with #{notification[:class_name]}: condition #{notification[:field]} = #{notification[:value]} on #{self}, dirty? #{self.changed_attributes.key?(trigger_field)}, value: '#{self.public_send(trigger_field)}'"
 
 				# puts"\n"
 				# puts "#{trigger_field} == #{trigger_value}"
@@ -35,7 +35,7 @@ module Notify
 				# puts "Equal: #{self.read_attribute(trigger_field) == trigger_value}"
 				if self.changed_attributes.key?(trigger_field) && self.public_send(trigger_field).to_s == trigger_value.to_s
 					# puts "match"
-					Rails.logger.warn "Match! Sending."
+					Rails.logger.info "Match! Sending."
 					field_state_matched(notification)
 				# else
 				# 	puts "no match"
