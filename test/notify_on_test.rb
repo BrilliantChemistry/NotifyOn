@@ -4,8 +4,7 @@ class NotifyOnTest < ActiveSupport::TestCase
 
 	def test_created_on_should_be_called
 		p = Person.new
-		# p.expects(:notify_of_creation)
-		p.expects(:send_notification)
+		p.expects(:create_notification)
 		p.save
 	end
 
@@ -36,14 +35,14 @@ class NotifyOnTest < ActiveSupport::TestCase
 		p = Product.new
 		p.expects(:notify_of_creation).never
 		p.save!
-		
+
 		p.expects(:notify_of_creation).never
 		p.expects(:field_state_matched).never
-		p.state = "pending"
+		p.state = :pending
 		p.save!
 
 		p.expects(:field_state_matched).once
-		p.state = "accepted"
+		p.state = :accepted
 		p.save!
 	end
 
@@ -55,5 +54,18 @@ class NotifyOnTest < ActiveSupport::TestCase
 		p = Product.new
 		p.expects(:notify_of_creation).never
 		p.save!
+	end
+
+	def test_message_sent
+		p = Product.new
+		p.save!
+
+		p.expects(:send_message).once
+		p.expects(:create_notification).never
+
+		p.state = :declined
+		p.save!
+
+
 	end
 end

@@ -4,6 +4,7 @@ module Notify
 
 		# instance methods
 		def notify_of_creation
+			# Note: SELF is the ActiveRecord model object
 			Rails.logger.debug "notify_of_creation >> [#{self.class.name}] "
 			Rails.logger.debug self.class.notify_list
 			# puts clazz.notify_list
@@ -14,11 +15,12 @@ module Notify
 
 			config[:create].each do |notification|
 				Rails.logger.info "CREATE on #{self} with #{notification[:class_name]}"
-				send_notification(notification)
+				create_notification(notification)
 			end
 		end
 
 		def notify_of_state_change
+			# Note: SELF is the ActiveRecord model object
 			# puts "notify_of_state_change >> "
 			config = self.class.notify_list[self.class.name]
 			config[:change].each do |notification|
@@ -28,28 +30,42 @@ module Notify
 				Rails.logger.info "STATE_CHANGE with #{notification[:class_name]}: condition #{notification[:field]} = #{notification[:value]} on #{self}, dirty? #{self.changed_attributes.key?(trigger_field)}, value: '#{self.public_send(trigger_field)}'"
 
 				# puts"\n"
-				# puts "#{trigger_field} == #{trigger_value}"
+				# puts "Checking Condition: #{trigger_field} == #{trigger_value}"
 				# puts "Changed attributes: #{self.changed_attributes}"
 				# puts "Was changed: #{self.changed_attributes.key?(trigger_field)}"
 				# puts "value: '#{self.public_send(trigger_field)}' and need: '#{trigger_value}'"
-				# puts "Equal: #{self.read_attribute(trigger_field) == trigger_value}"
+				# puts "Equal: #{self.public_send(trigger_field).to_s == trigger_value.to_s}"
 				if self.changed_attributes.key?(trigger_field) && self.public_send(trigger_field).to_s == trigger_value.to_s
-					# puts "match"
+					# puts "Condition: match"
 					Rails.logger.info "Match! Sending."
 					field_state_matched(notification)
-				# else
-				# 	puts "no match"
+				else
+					# puts "Condition: no match"
 				end
 			end
 		end
 
 		# really just for testing state logic...
 		def field_state_matched(notification)
-			send_notification(notification)
+			# puts "field_state_matched called!"
+			if notification[:class_name].present?
+				# puts "Creating a notification for #{notification[:class_name]}"
+				create_notification(notification)
+			elsif notification[:method_name].present?
+				# puts "Sending a message for #{notification[:method_name]}"
+				send_message(notification)
+			else
+				# puts "Failed to detect what's up"
+				Rails.logger.error "Unable to send notification, class name or method symbol was not used."
+			end
 		end
 
+		def send_message(notification)
+			# method name is a fire and forget type notification...
+			self.send(notification[:method_name])
+		end
 
-		def send_notification(notification)
+		def create_notification(notification)
 			klass = Object.const_get notification[:class_name]
 			klass.create_and_save(self)
 		end
@@ -78,15 +94,22 @@ module Notify
 
 				notification = {}
 				notification[:scheme] = type
-				notification[:class_name] = options[:with]
+
+				case options[:with]
+					when Symbol
+						notification[:method_name] = options[:with]
+					when String
+						notification[:class_name] = options[:with]
+						# attempt to load the class and fail if not able to
+						# begin # the rescue block is not needed as runtime provides a better message.
+						test = Object.const_get notification[:class_name]
+						# rescue LoadError => e
+						# 	raise "notify_on: #{type} -> Unable to load class (#{notification[:class_name]})"
+						# end
+				end
 				notification[:model_name] = name
 
-				# attempt to load the class and fail if not able to
-				# begin # the rescue block is not needed as runtime provides a better message.
-				test = Object.const_get notification[:class_name]
-				# rescue LoadError => e
-				# 	raise "notify_on: #{type} -> Unable to load class (#{notification[:class_name]})"
-				# end
+
 
 
 				if type == :create

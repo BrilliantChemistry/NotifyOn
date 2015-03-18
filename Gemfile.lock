@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    notify (0.0.7)
+    notify (0.0.9)
       rails (~> 4.1)
 
 GEM
