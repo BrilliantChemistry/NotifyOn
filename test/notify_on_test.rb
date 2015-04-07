@@ -65,7 +65,23 @@ class NotifyOnTest < ActiveSupport::TestCase
 
 		p.state = :declined
 		p.save!
+	end
 
+	def test_exited_state
+		p = Person.new
+		p.save!
+		p.expects(:field_state_matched).once
+		p.state = "active"
+		p.save
+		puts "\n"
+
+		p.expects(:field_state_matched).once
+		p.state = "closed"
+		p.save
+
+		p.expects(:field_state_matched).never
+		p.state = "finished"
+		p.save
 
 	end
 end
