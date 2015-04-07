@@ -68,6 +68,7 @@ class NotifyOnTest < ActiveSupport::TestCase
 	end
 
 	def test_exited_state
+		puts Person.notify_list
 		p = Person.new
 		p.save!
 		p.expects(:field_state_matched).once

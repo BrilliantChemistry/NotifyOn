@@ -23,47 +23,52 @@ module Notify
 			# Note: SELF is the ActiveRecord model object
 			# puts "notify_of_state_change >> "
 			config = self.class.notify_list[self.class.name]
-			config[:match].each do |notification|
-				trigger_field = notification[:field].to_sym
-				trigger_value = notification[:value]
+			if config[:match].present?
+				config[:match].each do |notification|
+					trigger_field = notification[:field].to_sym
+					trigger_value = notification[:value]
 
-				Rails.logger.info "STATE_MATCH with #{notification[:class_name]}: condition #{notification[:field]} = #{notification[:value]} on #{self}, dirty? #{self.changed_attributes.key?(trigger_field)}, value: '#{self.public_send(trigger_field)}'"
+					Rails.logger.info "STATE_MATCH with #{notification[:class_name]}: condition #{notification[:field]} = #{notification[:value]} on #{self}, dirty? #{self.changed_attributes.key?(trigger_field)}, value: '#{self.public_send(trigger_field)}'"
 
-				# puts"\n"
-				# puts "Checking Condition: #{trigger_field} == #{trigger_value}"
-				# puts "Changed attributes: #{self.changed_attributes}"
-				# puts "Was changed: #{self.changed_attributes.key?(trigger_field)}"
-				# puts "value: '#{self.public_send(trigger_field)}' and need: '#{trigger_value}'"
-				# puts "Equal: #{self.public_send(trigger_field).to_s == trigger_value.to_s}"
-				if self.changed_attributes.key?(trigger_field) && self.public_send(trigger_field).to_s == trigger_value.to_s
-					# puts "Condition: matched #{trigger_field}: #{trigger_value}"
-					Rails.logger.info "Match! Sending."
-					field_state_matched(notification)
-				else
-					# puts "Condition: no match"
+					# puts"\n"
+					# puts "Checking Condition: #{trigger_field} == #{trigger_value}"
+					# puts "Changed attributes: #{self.changed_attributes}"
+					# puts "Was changed: #{self.changed_attributes.key?(trigger_field)}"
+					# puts "value: '#{self.public_send(trigger_field)}' and need: '#{trigger_value}'"
+					# puts "Equal: #{self.public_send(trigger_field).to_s == trigger_value.to_s}"
+					if self.changed_attributes.key?(trigger_field) && self.public_send(trigger_field).to_s == trigger_value.to_s
+						# puts "Condition: matched #{trigger_field}: #{trigger_value}"
+						Rails.logger.info "Match! Sending."
+						field_state_matched(notification)
+					else
+						# puts "Condition: no match"
+					end
 				end
 			end
-			return unless config[:exit].present?
-			config[:exit].each do |notification|
-				trigger_field = notification[:field].to_sym
-				trigger_value = notification[:value]
 
-				Rails.logger.info "STATE_EXITED with #{notification[:class_name]}: condition #{notification[:field]} left #{notification[:value]} on #{self}, dirty? #{self.changed_attributes.key?(trigger_field)}, value: '#{self.public_send(trigger_field)}'"
+			if config[:transition].present?
+				config[:transition].each do |notification|
+					trigger_field = notification[:field].to_sym
+					old_value = notification[:old_value]
+					new_value = notification[:new_value]
 
-				# puts"\n"
-				# puts "Checking Condition: #{trigger_field} == #{trigger_value}"
-				# puts "Changed attributes: #{self.changed_attributes}"
-				# puts "Was changed: #{self.changed_attributes.key?(trigger_field)}"
-				# puts "value: '#{self.public_send(trigger_field)}' and need: '#{trigger_value}'"
-				# puts "Equal: #{self.public_send(trigger_field).to_s == trigger_value.to_s}"
-				if self.changed_attributes.key?(trigger_field) && # trigger_field was updated
-						self.changed_attributes[trigger_field].to_s == trigger_value.to_s && # trigger_field used to equal trigger_value
-						self.public_send(trigger_field).to_s != trigger_value.to_s # trigger_field no longer equals trigger_value
-					# puts "Condition: exited #{trigger_field}: #{trigger_value}"
-					Rails.logger.info "Exited! Sending."
-					field_state_matched(notification)
-				else
-					# puts "Condition: no match"
+					Rails.logger.info "STATE_EXITED with #{notification[:class_name]}: condition #{notification[:field]} left #{notification[:value]} on #{self}, dirty? #{self.changed_attributes.key?(trigger_field)}, value: '#{self.public_send(trigger_field)}'"
+
+					# puts"\n"
+					# puts "Checking Condition: #{trigger_field} == #{trigger_value}"
+					# puts "Changed attributes: #{self.changed_attributes}"
+					# puts "Was changed: #{self.changed_attributes.key?(trigger_field)}"
+					# puts "value: '#{self.public_send(trigger_field)}' and need: '#{trigger_value}'"
+					# puts "Equal: #{self.public_send(trigger_field).to_s == trigger_value.to_s}"
+					if self.changed_attributes.key?(trigger_field) && # trigger_field was updated
+							self.changed_attributes[trigger_field].to_s == old_value.to_s && # trigger_field used to equal trigger_value
+							self.public_send(trigger_field).to_s == new_value.to_s # trigger_field no longer equals trigger_value
+						# puts "Condition: transition #{trigger_field}: #{old_value} to #{new_value}"
+						Rails.logger.info "Transition! Sending."
+						field_state_matched(notification)
+					else
+						# puts "Condition: no match"
+					end
 				end
 			end
 		end
@@ -139,18 +144,20 @@ module Notify
 					# puts "Setting up create callback."
 					after_create  :notify_of_creation
 
-				elsif type.to_s.starts_with? 'exited'
-					# we are checking when we leave the state
-					notification[:scheme] = :exit
-					notification[:field] = type.to_s.gsub(/exited_/, '').to_sym
-					notification[:value] = value
-					if notification[:value].blank?
-						ActiveSupport::Deprecation.warn("State must be provided when specifying :state_change for notification_scheme")
+				elsif type.to_s.ends_with? '_transition'
+					# puts "State transition callback."
+					notification[:scheme] = :transition
+					notification[:field] = type.to_s.gsub(/_transition/, '').to_sym
+					notification[:old_value] = options[:from]
+					notification[:new_value] = options[:to]
+
+					if notification[:old_value].blank? || notification[:new_value].blank?
+						ActiveSupport::Deprecation.warn("Transition values must be provided (:from, :to) when specifying :field_transition for notification_scheme")
 					end
 
 					after_update  :notify_of_state_change
 				else
-
+					# puts "State match callback."
 					notification[:scheme] = :match
 					notification[:field] = type.to_sym
 					# TODO: validate object has specified field.
