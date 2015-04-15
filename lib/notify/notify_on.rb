@@ -28,7 +28,7 @@ module Notify
 					trigger_field = notification[:field].to_sym
 					trigger_value = notification[:value]
 
-					Rails.logger.info "Checking for STATE_MATCH with #{notification[:class_name].present? ? notification[:class_name] : "send " + notification[:method_name]}: #{notification[:field]} = #{notification[:value]} on #{self.class.name}[#{self.id}], dirty? #{self.changed_attributes.key?(trigger_field)}, value: '#{self.public_send(trigger_field)}'"
+					Rails.logger.info "Checking for STATE_MATCH with #{notification[:class_name].present? ? notification[:class_name] : "send " + notification[:method_name].to_s}: #{notification[:field]} = #{notification[:value]} on #{self.class.name}[#{self.id}], dirty? #{self.changed_attributes.key?(trigger_field)}, value: '#{self.public_send(trigger_field)}'"
 
 					# puts"\n"
 					# puts "Checking Condition: #{trigger_field} == #{trigger_value}"
@@ -52,7 +52,7 @@ module Notify
 					old_value = notification[:old_value]
 					new_value = notification[:new_value]
 
-					Rails.logger.info "Checking for STATE_EXITED with #{notification[:class_name]}: condition #{notification[:field]} left #{notification[:value]} on #{self}, dirty? #{self.changed_attributes.key?(trigger_field)}, value: '#{self.public_send(trigger_field)}'"
+					Rails.logger.info "Checking for STATE_EXITED with #{notification[:class_name].present? ? notification[:class_name] : "send " + notification[:method_name].to_s}: condition #{notification[:field]} left #{notification[:value]} on #{self}, dirty? #{self.changed_attributes.key?(trigger_field)}, value: '#{self.public_send(trigger_field)}'"
 
 					# puts"\n"
 					# puts "Checking Condition: #{trigger_field} == #{trigger_value}"
