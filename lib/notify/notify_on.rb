@@ -21,14 +21,14 @@ module Notify
 
 		def notify_of_state_change
 			# Note: SELF is the ActiveRecord model object
-			# puts "notify_of_state_change >> "
+			Rails.logger.info "notify_of_state_change for [#{self.class.name}] >>"
 			config = self.class.notify_list[self.class.name]
 			if config[:match].present?
 				config[:match].each do |notification|
 					trigger_field = notification[:field].to_sym
 					trigger_value = notification[:value]
 
-					Rails.logger.info "STATE_MATCH with #{notification[:class_name]}: condition #{notification[:field]} = #{notification[:value]} on #{self}, dirty? #{self.changed_attributes.key?(trigger_field)}, value: '#{self.public_send(trigger_field)}'"
+					Rails.logger.info "Checking for STATE_MATCH with #{notification[:class_name].present? ? notification[:class_name] : "send " + notification[:method_name]}: #{notification[:field]} = #{notification[:value]} on #{self.class.name}[#{self.id}], dirty? #{self.changed_attributes.key?(trigger_field)}, value: '#{self.public_send(trigger_field)}'"
 
 					# puts"\n"
 					# puts "Checking Condition: #{trigger_field} == #{trigger_value}"
@@ -38,7 +38,7 @@ module Notify
 					# puts "Equal: #{self.public_send(trigger_field).to_s == trigger_value.to_s}"
 					if self.changed_attributes.key?(trigger_field) && self.public_send(trigger_field).to_s == trigger_value.to_s
 						# puts "Condition: matched #{trigger_field}: #{trigger_value}"
-						Rails.logger.info "Match! Sending."
+						Rails.logger.info "Found Match! Sending."
 						field_state_matched(notification)
 					else
 						# puts "Condition: no match"
@@ -52,7 +52,7 @@ module Notify
 					old_value = notification[:old_value]
 					new_value = notification[:new_value]
 
-					Rails.logger.info "STATE_EXITED with #{notification[:class_name]}: condition #{notification[:field]} left #{notification[:value]} on #{self}, dirty? #{self.changed_attributes.key?(trigger_field)}, value: '#{self.public_send(trigger_field)}'"
+					Rails.logger.info "Checking for STATE_EXITED with #{notification[:class_name]}: condition #{notification[:field]} left #{notification[:value]} on #{self}, dirty? #{self.changed_attributes.key?(trigger_field)}, value: '#{self.public_send(trigger_field)}'"
 
 					# puts"\n"
 					# puts "Checking Condition: #{trigger_field} == #{trigger_value}"
@@ -64,7 +64,7 @@ module Notify
 							self.changed_attributes[trigger_field].to_s == old_value.to_s && # trigger_field used to equal trigger_value
 							self.public_send(trigger_field).to_s == new_value.to_s # trigger_field no longer equals trigger_value
 						# puts "Condition: transition #{trigger_field}: #{old_value} to #{new_value}"
-						Rails.logger.info "Transition! Sending."
+						Rails.logger.info "Found Transition! Sending."
 						field_state_matched(notification)
 					else
 						# puts "Condition: no match"
