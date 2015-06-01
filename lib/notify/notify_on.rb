@@ -24,7 +24,7 @@ module Notify
 			Rails.logger.info "notify_of_state_change for [#{self.class.name}] >>"
 			config = self.class.notify_list[self.class.name]
 			if config[:match].present?
-				config[:match].each do |notification|
+				config[:match].each_with_index do |notification, index|
 					trigger_field = notification[:field].to_sym
 					trigger_value = notification[:value]
 
@@ -36,12 +36,16 @@ module Notify
 					# puts "Was changed: #{self.changed_attributes.key?(trigger_field)}"
 					# puts "value: '#{self.public_send(trigger_field)}' and need: '#{trigger_value}'"
 					# puts "Equal: #{self.public_send(trigger_field).to_s == trigger_value.to_s}"
+
+					# puts "#{self.class.name}.#{trigger_field} is enum: #{notification[:enum?]} && #{notification[:enum_default_value].to_s} == #{trigger_value.to_s} && #{self.public_send(trigger_field)} == nil"
+
 					if self.changed_attributes.key?(trigger_field) && self.public_send(trigger_field).to_s == trigger_value.to_s
 						# puts "Condition: matched #{trigger_field}: #{trigger_value}"
 						Rails.logger.info "Found Match! Sending."
 						field_state_matched(notification)
-					else
-						# puts "Condition: no match"
+					elsif notification[:enum?] && notification[:enum_default_value].to_s == trigger_value.to_s && self.public_send(trigger_field) == nil
+						Rails.logger.info "WARNING: #{self.class.name}.#{trigger_field} is an enum set to match against a default value of #{trigger_value} but is nil. You need to set a value for #{trigger_field} before saving."
+
 					end
 				end
 			end
@@ -167,7 +171,27 @@ module Notify
 						ActiveSupport::Deprecation.warn("State must be provided when specifying :state_change for notification_scheme")
 					end
 
-					after_update  :notify_of_state_change
+					# we need to check if the caller wants to notify on the first value of an enum field.  In this case,
+					# they may expect that when the object is created and saved, the notification would go out.
+					# Unfortunately, Rails doesn't have built in defaults for enums. We rely on the database default to set it for us
+					# which means the default isn't set until after being read back from the database. :/
+					# This scenario is a bag of hurt and we are going to warn the user it won't work.
+					if self.respond_to?(type.to_s.pluralize)
+						notification[:enum?] = true
+						# we have an rails 4.1 enum, get the possible values...
+						enum_values = self.send(type.to_s.pluralize)
+						if enum_values
+							# get the value with integer value 0 (the default or first)
+							default = enum_values.key(0)
+							notification[:enum_default_value] = default
+							if default.to_sym == notification[:value].to_sym
+								# If we were asked to notify on the default, then we need to put out a warning message about that.
+								ActiveSupport::Deprecation.warn("Asked to notify on #{self.name}.#{type.to_s} == #{notification[:value]}, this is the expected default value and is NOT supported. Instead use notify_on :create instead.")
+							end
+						end
+					end
+
+					after_update :notify_of_state_change
 				end
 
 				# puts self.notify_list
