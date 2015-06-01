@@ -15,7 +15,14 @@ module Notify
 
 			config[:create].each do |notification|
 				Rails.logger.info "CREATE on #{self} with #{notification[:class_name]}"
-				create_notification(notification)
+
+				if notification[:class_name].present?
+					create_notification(notification)
+				elsif notification[:method_name].present?
+					send_message(notification)
+				else
+					Rails.logger.error "Unable to send notification for create, class name or method symbol was not used."
+				end
 			end
 		end
 
