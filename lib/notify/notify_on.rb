@@ -1,3 +1,5 @@
+require 'securerandom'
+
 module Notify
 	module NotifyOn
 		extend ActiveSupport::Concern
@@ -14,7 +16,7 @@ module Notify
 			# Rails.logger.warn "NOTIFY_OF_CREATION: #{self}"
 
 			config[:create].each do |notification|
-				Rails.logger.info "CREATE on #{self} with #{notification[:class_name]}"
+				Rails.logger.info "CREATE on #{self} with #{notification[:class_name]} (#{notification[:id]})"
 
 				if notification[:class_name].present?
 					create_notification(notification)
@@ -35,7 +37,7 @@ module Notify
 					trigger_field = notification[:field].to_sym
 					trigger_value = notification[:value]
 
-					Rails.logger.info "Checking for STATE_MATCH with #{notification[:class_name].present? ? notification[:class_name] : "send " + notification[:method_name].to_s}: #{notification[:field]} = #{notification[:value]} on #{self.class.name}[#{self.id}], dirty? #{self.changed_attributes.key?(trigger_field)}, value: '#{self.public_send(trigger_field)}'"
+					Rails.logger.info "Checking for STATE_MATCH with #{notification[:class_name].present? ? notification[:class_name] : "send(" + notification[:method_name].to_s + ")"}: #{notification[:field]} = #{notification[:value]} on #{self.class.name}[#{self.id}], dirty? #{self.changed_attributes.key?(trigger_field)}, value: '#{self.public_send(trigger_field)}' (#{notification[:id]})"
 
 					# puts"\n"
 					# puts "Checking Condition: #{trigger_field} == #{trigger_value}"
@@ -63,7 +65,7 @@ module Notify
 					old_value = notification[:old_value]
 					new_value = notification[:new_value]
 
-					Rails.logger.info "Checking for STATE_EXITED with #{notification[:class_name].present? ? notification[:class_name] : "send " + notification[:method_name].to_s}: condition #{notification[:field]} left #{notification[:value]} on #{self}, dirty? #{self.changed_attributes.key?(trigger_field)}, value: '#{self.public_send(trigger_field)}'"
+					Rails.logger.info "Checking for STATE_EXITED with #{notification[:class_name].present? ? notification[:class_name] : "send(" + notification[:method_name].to_s + ")"}: condition #{notification[:field]} left #{notification[:value]} on #{self}, dirty? #{self.changed_attributes.key?(trigger_field)}, value: '#{self.public_send(trigger_field)}' (#{notification[:id]})"
 
 					# puts"\n"
 					# puts "Checking Condition: #{trigger_field} == #{trigger_value}"
@@ -133,6 +135,7 @@ module Notify
 
 				notification = {}
 				notification[:scheme] = type
+				notification[:id] = "N-#{SecureRandom.uuid}"
 
 				case options[:with]
 					when Symbol
@@ -203,9 +206,14 @@ module Notify
 
 				# puts self.notify_list
 
+				# notify_list[ModelName] =>
+					# model_config[:create | :transition | :match] =>
+						# [ notifications ]
+
 				self.notify_list ||= {}
 				model_config = self.notify_list[notification[:model_name]]
 				model_config ||= {}
+				model_config[:id] = "MODEL-#{SecureRandom.uuid}" if model_config[:id].blank?
 				model_config[notification[:scheme]] ||= []
 				model_config[notification[:scheme]] << notification
 				self.notify_list[notification[:model_name]] = model_config
