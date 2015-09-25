@@ -111,14 +111,16 @@ module Notify
 			klass.create_and_save(self)
 		end
 
-		# def notify_config
-		# 	self.notify_attributes
-		# end
-
-		# add your static(class) methods here
 		module ClassMethods
 			cattr_accessor :notify_list
 
+			# provides the syntax:
+			#	notify_on :create, with: :method_name
+			# 	notify_on :field_name, :field_value, with: "NotificationClassName"
+			#	notify_on :field_transition, from: :old_value, to: :new_value, with: "ClassName" or :method_name
+			#
+			# Note: in development, class reloading will duplicate notification configuration, we need to hook into rails reloading to
+			# fix this.
 			def notify_on(type, *args)
 				options = args.extract_options!
 
@@ -209,7 +211,6 @@ module Notify
 				# notify_list[ModelName] =>
 					# model_config[:create | :transition | :match] =>
 						# [ notifications ]
-
 				self.notify_list ||= {}
 				model_config = self.notify_list[notification[:model_name]]
 				model_config ||= {}
