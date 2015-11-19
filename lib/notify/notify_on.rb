@@ -31,6 +31,7 @@ module Notify
 		def notify_of_state_change
 			# Note: SELF is the ActiveRecord model object
 			Rails.logger.info "notify_of_state_change for [#{self.class.name}] >>"
+
 			config = self.class.notify_list[self.class.name]
 			if config[:match].present?
 				config[:match].each_with_index do |notification, index|
@@ -47,14 +48,14 @@ module Notify
 					# puts "Equal: #{self.public_send(trigger_field).to_s == trigger_value.to_s}"
 
 					# puts "#{self.class.name}.#{trigger_field} is enum: #{notification[:enum?]} && #{notification[:enum_default_value].to_s} == #{trigger_value.to_s} && #{self.public_send(trigger_field)} == nil"
-
-					if self.changed_attributes.key?(trigger_field) && self.public_send(trigger_field).to_s == trigger_value.to_s
-						# puts "Condition: matched #{trigger_field}: #{trigger_value}"
+					if (!self.id_changed? || self.changed_attributes.key?(trigger_field) ) &&
+							self.public_send(trigger_field).to_s == trigger_value.to_s
+						# puts "[*] Condition: matched #{trigger_field}: #{trigger_value}"
 						Rails.logger.info "Found Match! Sending."
-						field_state_matched(notification)
-					elsif notification[:enum?] && notification[:enum_default_value].to_s == trigger_value.to_s && self.public_send(trigger_field) == nil
-						Rails.logger.info "WARNING: #{self.class.name}.#{trigger_field} is an enum set to match against a default value of #{trigger_value} but is nil. You need to set a value for #{trigger_field} before saving."
 
+						field_state_matched(notification)
+					# elsif notification[:enum?] && notification[:enum_default_value].to_s == trigger_value.to_s && self.public_send(trigger_field) == nil
+					# 	Rails.logger.info "WARNING: #{self.class.name}.#{trigger_field} is an enum set to match against a default value of #{trigger_value} but is nil. You need to set a value for #{trigger_field} before saving."
 					end
 				end
 			end
@@ -68,7 +69,7 @@ module Notify
 					Rails.logger.info "Checking for STATE_EXITED with #{notification[:class_name].present? ? notification[:class_name] : "send(" + notification[:method_name].to_s + ")"}: condition #{notification[:field]} left #{notification[:value]} on #{self}, dirty? #{self.changed_attributes.key?(trigger_field)}, value: '#{self.public_send(trigger_field)}' (#{notification[:id]})"
 
 					# puts"\n"
-					# puts "Checking Condition: #{trigger_field} == #{trigger_value}"
+					# puts "Checking Condition: #{trigger_field} == #{old_value} -> #{new_value}"
 					# puts "Changed attributes: #{self.changed_attributes}"
 					# puts "Was changed: #{self.changed_attributes.key?(trigger_field)}"
 					# puts "value: '#{self.public_send(trigger_field)}' and need: '#{trigger_value}'"
@@ -76,7 +77,7 @@ module Notify
 					if self.changed_attributes.key?(trigger_field) && # trigger_field was updated
 							self.changed_attributes[trigger_field].to_s == old_value.to_s && # trigger_field used to equal trigger_value
 							self.public_send(trigger_field).to_s == new_value.to_s # trigger_field no longer equals trigger_value
-						# puts "Condition: transition #{trigger_field}: #{old_value} to #{new_value}"
+						# puts "[*] Condition: transition #{trigger_field}: #{old_value} to #{new_value}"
 						Rails.logger.info "Found Transition! Sending."
 						field_state_matched(notification)
 					else
@@ -171,7 +172,12 @@ module Notify
 						ActiveSupport::Deprecation.warn("Transition values must be provided (:from, :to) when specifying :field_transition for notification_scheme")
 					end
 
-					after_update  :notify_of_state_change
+					# after_update :notify_of_state_change
+
+					if self.notify_list.blank? || self.notify_list[notification[:model_name]].blank? ||
+							self.notify_list[notification[:model_name]][notification[:scheme]].blank?
+						after_save :notify_of_state_change
+					end
 				else
 					# puts "State match callback."
 					notification[:scheme] = :match
@@ -196,14 +202,13 @@ module Notify
 							# get the value with integer value 0 (the default or first)
 							default = enum_values.key(0)
 							notification[:enum_default_value] = default
-							if default.to_sym == notification[:value].to_sym
-								# If we were asked to notify on the default, then we need to put out a warning message about that.
-								ActiveSupport::Deprecation.warn("Asked to notify on #{self.name}.#{type.to_s} == #{notification[:value]}, this is the expected default value and is NOT supported. Instead use notify_on :create instead.")
-							end
 						end
 					end
+					if self.notify_list.blank? || self.notify_list[notification[:model_name]].blank? ||
+							self.notify_list[notification[:model_name]][notification[:scheme]].blank?
+						after_save :notify_of_state_change
+					end
 
-					after_update :notify_of_state_change
 				end
 
 				# puts self.notify_list

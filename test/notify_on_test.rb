@@ -12,10 +12,12 @@ class NotifyOnTest < ActiveSupport::TestCase
 		# puts "\n"
 		# puts "Field Change SHOULD be Called! >>"
 
-		p = Person.new
-		p.save!
+		p = Person.new(:state => :pending)
 		p.expects(:field_state_matched).once
-		p.state = "pending"
+		p.save
+
+		p = Person.new
+		p.expects(:field_state_matched).once
 		p.save
 		# puts "\n"
 
@@ -27,18 +29,18 @@ class NotifyOnTest < ActiveSupport::TestCase
 		p = Person.new
 		p.save!
 		p.expects(:field_state_matched).never
-		p.state = "second_test"
+		p.state = :bogus
 		p.save
 	end
 
 	def test_field_change_called_on_creation
-		# puts "Creating BLOB for the first time."
-		# puts Blob.notify_list
-		b = Blob.new
+		puts Blob.notify_list
+		b = Blob.new(:state => :pending)
+		b.expects(:notify_of_creation).never
 		b.expects(:field_state_matched).once
 		b.save!
 		b.reload
-		b.save
+		b.save!
 	end
 
 	def test_other_model_does_not_have_notifications
@@ -78,35 +80,38 @@ class NotifyOnTest < ActiveSupport::TestCase
 	end
 
 	def test_state_transition
-		p = Person.new
+		p = Person.create!(:state => :bogus)
+		assert p.bogus?
+
 		# get rid of that first notify on create...
-		p.state = "active"
-		p.save
+		# p.state = "active"
+		# p.save
 
 		# now we only want one...
 		p.expects(:field_state_matched).once
 
-		# p.state = "dummy"
-		# p.save
-		# puts "setting state to active."
-		# p.state = "active"
-		# p.save
+		puts "setting state to active."
+		p.state = :active
+		puts "saving"
+		p.save!
 
-		# puts "reloading."
-		# p.reload
-		# puts "\n"
-
-		p.state = "closed"
-		p.save
+		puts "reloading."
+		p.reload
+		puts "done"
+		puts "setting state to closed"
+		p.state = :closed
+		puts "done and now saving!"
+		p.save!
+		puts "done!"
 	end
 
 	def test_state_transition_not_fired
 		p = Person.new
 		p.expects(:field_state_matched).never
-		p.state = "dummy"
+		p.state = :bogus
 		p.save
 
-		p.state = "finished"
+		p.state = :finished
 		p.save
 	end
 end
