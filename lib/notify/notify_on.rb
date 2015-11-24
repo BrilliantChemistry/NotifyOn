@@ -16,7 +16,7 @@ module Notify
 			# Rails.logger.warn "NOTIFY_OF_CREATION: #{self}"
 
 			config[:create].each do |notification|
-				Rails.logger.info "CREATE on #{self} with #{notification[:class_name]} (#{notification[:id]})"
+				Rails.logger.debug "CREATE on #{self} with #{notification[:class_name]} (#{notification[:id]})"
 
 				if notification[:class_name].present?
 					create_notification(notification)
@@ -38,7 +38,7 @@ module Notify
 					trigger_field = notification[:field].to_sym
 					trigger_value = notification[:value]
 
-					Rails.logger.info "Checking for STATE_MATCH with #{notification[:class_name].present? ? notification[:class_name] : "send(" + notification[:method_name].to_s + ")"}: #{notification[:field]} = #{notification[:value]} on #{self.class.name}[#{self.id}], dirty? #{self.changed_attributes.key?(trigger_field)}, value: '#{self.public_send(trigger_field)}' (#{notification[:id]})"
+					Rails.logger.debug "Checking for STATE_MATCH with #{notification[:class_name].present? ? notification[:class_name] : "send(" + notification[:method_name].to_s + ")"}: #{notification[:field]} = #{notification[:value]} on #{self.class.name}[#{self.id}], dirty? #{self.changed_attributes.key?(trigger_field)}, value: '#{self.public_send(trigger_field)}' (#{notification[:id]})"
 
 					# puts"\n"
 					# puts "Checking Condition: #{trigger_field} == #{trigger_value}"
@@ -50,7 +50,7 @@ module Notify
 					# puts "#{self.class.name}.#{trigger_field} is enum: #{notification[:enum?]} && #{notification[:enum_default_value].to_s} == #{trigger_value.to_s} && #{self.public_send(trigger_field)} == nil"
 					if (!self.id_changed? || self.changed_attributes.key?(trigger_field) ) &&
 							self.public_send(trigger_field).to_s == trigger_value.to_s
-						# puts "[*] Condition: matched #{trigger_field}: #{trigger_value}"
+						Rails.logger.debug "[*] Condition: matched #{trigger_field}: #{trigger_value}"
 						Rails.logger.info "Found Match! Sending."
 
 						field_state_matched(notification)
@@ -77,7 +77,7 @@ module Notify
 					if self.changed_attributes.key?(trigger_field) && # trigger_field was updated
 							self.changed_attributes[trigger_field].to_s == old_value.to_s && # trigger_field used to equal trigger_value
 							self.public_send(trigger_field).to_s == new_value.to_s # trigger_field no longer equals trigger_value
-						# puts "[*] Condition: transition #{trigger_field}: #{old_value} to #{new_value}"
+						Rails.logger.debug "[*] Condition: transition #{trigger_field}: #{old_value} to #{new_value}"
 						Rails.logger.info "Found Transition! Sending."
 						field_state_matched(notification)
 					else
@@ -159,7 +159,11 @@ module Notify
 
 				if type == :create
 					# puts "Setting up create callback."
-					after_create  :notify_of_creation
+					if self.notify_list.blank? || self.notify_list[notification[:model_name]].blank? ||
+							self.notify_list[notification[:model_name]][notification[:scheme]].blank?
+						after_create  :notify_of_creation
+					end
+
 
 				elsif type.to_s.ends_with? '_transition'
 					# puts "State transition callback."
@@ -179,7 +183,7 @@ module Notify
 						after_save :notify_of_state_change
 					end
 				else
-					# puts "State match callback."
+
 					notification[:scheme] = :match
 					notification[:field] = type.to_sym
 					# TODO: validate object has specified field.
