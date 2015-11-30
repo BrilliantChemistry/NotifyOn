@@ -14,3 +14,6 @@ gemspec
 # gem 'debugger'
 
 gem 'mocha'
+
+gem 'minitest', group: :test
+gem 'minitest-reporters', group: :test

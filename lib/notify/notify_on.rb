@@ -44,18 +44,19 @@ module Notify
 					# puts "Checking Condition: #{trigger_field} == #{trigger_value}"
 					# puts "Changed attributes: #{self.changed_attributes}"
 					# puts "Was changed: #{self.changed_attributes.key?(trigger_field)}"
+					# puts "ID changed?: #{self.id_changed?}"
 					# puts "value: '#{self.public_send(trigger_field)}' and need: '#{trigger_value}'"
 					# puts "Equal: #{self.public_send(trigger_field).to_s == trigger_value.to_s}"
-
 					# puts "#{self.class.name}.#{trigger_field} is enum: #{notification[:enum?]} && #{notification[:enum_default_value].to_s} == #{trigger_value.to_s} && #{self.public_send(trigger_field)} == nil"
-					if (!self.id_changed? || self.changed_attributes.key?(trigger_field) ) &&
-							self.public_send(trigger_field).to_s == trigger_value.to_s
+
+					if (self.id_changed? || self.changed_attributes.key?(trigger_field) ) &&	# if id changed (new object being created) or our trigger field was changed
+							self.public_send(trigger_field).to_s == trigger_value.to_s			# and if our trigger field matches the specified value
+
+						# puts "[*] Condition: matched #{trigger_field}: #{trigger_value}"
 						Rails.logger.debug "[*] Condition: matched #{trigger_field}: #{trigger_value}"
 						Rails.logger.info "Found Match! Sending."
 
 						field_state_matched(notification)
-					# elsif notification[:enum?] && notification[:enum_default_value].to_s == trigger_value.to_s && self.public_send(trigger_field) == nil
-					# 	Rails.logger.info "WARNING: #{self.class.name}.#{trigger_field} is an enum set to match against a default value of #{trigger_value} but is nil. You need to set a value for #{trigger_field} before saving."
 					end
 				end
 			end
@@ -79,9 +80,8 @@ module Notify
 							self.public_send(trigger_field).to_s == new_value.to_s # trigger_field no longer equals trigger_value
 						Rails.logger.debug "[*] Condition: transition #{trigger_field}: #{old_value} to #{new_value}"
 						Rails.logger.info "Found Transition! Sending."
+
 						field_state_matched(notification)
-					else
-						# puts "Condition: no match"
 					end
 				end
 			end
@@ -89,7 +89,7 @@ module Notify
 
 		# really just for testing state logic...
 		def field_state_matched(notification)
-			# puts "field_state_matched called!"
+			# puts "==> field_state_matched called!"
 			if notification[:class_name].present?
 				# puts "Creating a notification for #{notification[:class_name]}"
 				create_notification(notification)

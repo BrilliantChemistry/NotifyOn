@@ -79,6 +79,23 @@ class NotifyOnTest < ActiveSupport::TestCase
 		p.save!
 	end
 
+	def test_state_matched_only_once
+		p = Product.new
+
+		p.expects(:create_notification).never
+		p.expects(:field_state_matched).never
+
+		p.state = :accepted
+		puts "SAVING 1"
+		p.save
+		puts "RELOADING"
+		p.reload
+		puts "SAVING 2"
+		p.save
+
+		puts "DONE"
+	end
+
 	def test_state_transition
 		p = Person.create!(:state => :bogus)
 		assert p.bogus?
