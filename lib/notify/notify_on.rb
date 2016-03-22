@@ -33,6 +33,9 @@ module Notify
 			Rails.logger.info "notify_of_state_change for [#{self.class.name}] >>"
 
 			config = self.class.notify_list[self.class.name]
+
+			raise "notify_list not found for #{self.class.name}" if config.nil?
+
 			if config[:match].present?
 				config[:match].each_with_index do |notification, index|
 					trigger_field = notification[:field].to_sym
