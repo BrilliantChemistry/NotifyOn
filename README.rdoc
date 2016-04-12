@@ -2,9 +2,11 @@
 
 Notify (poor name) is a Rails plugin that crosses a state machine with Active Record callbacks.
 
-The primary goal of the project is to provide a unified DSL for
+The primary goal of the project is to provide a unified DSL for executing code when a property on an object is modified.
 
-1. ActiveRecord callbacks that perform an action with if :state1 elsif :state2 are error prone and cumbersome. Difficult to test and verbose.
+*Why?*
+
+1. ActiveRecord callbacks that perform an action with if :state1 elsif :state2 can be error prone and cumbersome. Difficult to test and verbose.
 
 2. Gems like AASM and Workflow are great but can be overkill.
 
