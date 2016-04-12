@@ -13,7 +13,11 @@ module Notify
 
 			config = self.class.notify_list[self.class.name]
 
-			# Rails.logger.warn "NOTIFY_OF_CREATION: #{self}"
+			# Check for STI if notify_list is on the parent class
+			config = self.class.notify_list[self.class.superclass.name] if config.nil?
+
+			# Raise a "not found" error if we still can't find notify_list for class
+			raise "notify_list not found on #{self.class.name}." if config.nil?
 
 			config[:create].each do |notification|
 				Rails.logger.debug "CREATE on #{self} with #{notification[:class_name]} (#{notification[:id]})"
@@ -33,6 +37,13 @@ module Notify
 			Rails.logger.info "notify_of_state_change for [#{self.class.name}] >>"
 
 			config = self.class.notify_list[self.class.name]
+
+			# Check for STI if notify_list is on the parent class
+			config = self.class.notify_list[self.class.superclass.name] if config.nil?
+
+			# Raise a "not found" error if we still can't find notify_list for class
+			raise "notify_list not found on #{self.class.name}." if config.nil?
+
 			if config[:match].present?
 				config[:match].each_with_index do |notification, index|
 					trigger_field = notification[:field].to_sym
