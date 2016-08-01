@@ -4,6 +4,8 @@ Rails.application.routes.draw do
 
   mount NotifyOn::Engine => '/notifications'
 
+  resources :messages
+
   root :to => 'application#home'
 
 end

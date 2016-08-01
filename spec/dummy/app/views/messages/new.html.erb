@@ -1,0 +1,5 @@
+<%= simple_form_for @message do |f| %>
+  <%= f.input :user_id, :label => 'To', :collection => User.all - [current_user] %>
+  <%= f.input :content %>
+  <%= f.submit 'Create Message', :class => 'btn btn-primary' %>
+<% end %>

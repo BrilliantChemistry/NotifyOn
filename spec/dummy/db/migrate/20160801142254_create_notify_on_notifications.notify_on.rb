@@ -1,3 +1,4 @@
+# This migration comes from notify_on (originally 20160801130053)
 class CreateNotifyOnNotifications < ActiveRecord::Migration[5.0]
   def change
     create_table :notify_on_notifications do |t|

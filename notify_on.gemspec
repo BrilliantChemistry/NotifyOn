@@ -27,4 +27,6 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'bootstrap', '~> 4.0.0.alpha3.1'
   s.add_development_dependency 'jquery-rails'
   s.add_development_dependency 'simple_form'
+  s.add_development_dependency 'better_errors'
+  s.add_development_dependency 'binding_of_caller'
 end
