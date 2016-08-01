@@ -1,0 +1,11 @@
+<header class="navbar navbar-light bg-faded">
+  <div class="links pull-xs-right">
+    <% if user_signed_in? %>
+      <%= link_to 'Sign Out', destroy_user_session_path,
+                  :class => 'btn btn-primary', :method => :delete %>
+    <% else %>
+      <%= link_to 'Sign In', new_user_session_path,
+                  :class => 'btn btn-primary' %>
+    <% end %>
+  </div>
+</header>

@@ -9,6 +9,11 @@
   </head>
 
   <body>
-    <%= yield %>
+
+    <%= render 'header' %>
+
+    <div id="container" class="p-a-2">
+      <%= yield %>
+    </div>
   </body>
 </html>

@@ -7,6 +7,7 @@ require "notify_on"
 
 # Needed to require this manually or specs wouldn't run for the parent engine.
 require 'devise'
+require 'simple_form'
 
 module Dummy
   class Application < Rails::Application
