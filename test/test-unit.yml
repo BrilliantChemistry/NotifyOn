@@ -1,3 +1,0 @@
-runner: console
-console_options:
-  arguments: --use-color=yes
