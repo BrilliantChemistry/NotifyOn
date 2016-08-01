@@ -5,6 +5,9 @@ require 'rails/all'
 Bundler.require(*Rails.groups)
 require "notify_on"
 
+# Needed to require this manually or specs wouldn't run for the parent engine.
+require 'devise'
+
 module Dummy
   class Application < Rails::Application
     # Settings in config/environments/* take precedence over those specified here.
