@@ -12,3 +12,6 @@ gemspec
 
 # To use a debugger
 # gem 'byebug', group: [:development, :test]
+
+gem 'sinatra', :github => 'sinatra'
+gem 'rack-protection', :github => 'sinatra/rack-protection'

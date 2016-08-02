@@ -19,14 +19,15 @@ Gem::Specification.new do |s|
 
   s.add_dependency 'rails', '>= 4.2'
 
-  s.add_development_dependency 'pg'
-  s.add_development_dependency 'rspec-rails'
-  s.add_development_dependency 'capybara'
-  s.add_development_dependency 'factory_girl_rails'
-  s.add_development_dependency 'devise'
-  s.add_development_dependency 'bootstrap', '~> 4.0.0.alpha3.1'
-  s.add_development_dependency 'jquery-rails'
-  s.add_development_dependency 'simple_form'
   s.add_development_dependency 'better_errors'
   s.add_development_dependency 'binding_of_caller'
+  s.add_development_dependency 'bootstrap', '~> 4.0.0.alpha3.1'
+  s.add_development_dependency 'capybara'
+  s.add_development_dependency 'devise'
+  s.add_development_dependency 'factory_girl_rails'
+  s.add_development_dependency 'jquery-rails'
+  s.add_development_dependency 'mailcatcher'
+  s.add_development_dependency 'pg'
+  s.add_development_dependency 'rspec-rails'
+  s.add_development_dependency 'simple_form'
 end

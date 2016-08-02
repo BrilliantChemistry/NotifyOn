@@ -1,0 +1,9 @@
+<p>Hey there, <%= @recipient.to_s %>!</p>
+
+<p>You have a new notification:</p>
+
+<blockquote>
+  <%= simple_format @notification.description %>
+</blockquote>
+
+<p>Cheers!</p>

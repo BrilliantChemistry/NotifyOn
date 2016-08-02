@@ -21,6 +21,12 @@ module Dummy
       g.assets false
       g.helper false
     end
+
+    # use mailcatcher in development and test (http://mailcatcher.me/)
+    ActionMailer::Base.smtp_settings = {
+      :address => '127.0.0.1',
+      :port => 1025
+    }
   end
 end
 
