@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160801142254) do
+ActiveRecord::Schema.define(version: 20160802123058) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -24,16 +24,14 @@ ActiveRecord::Schema.define(version: 20160801142254) do
   end
 
   create_table "notify_on_notifications", force: :cascade do |t|
-    t.integer  "recipient_id"
-    t.string   "recipient_type"
-    t.integer  "sender_id"
-    t.string   "sender_type"
-    t.boolean  "unread",         default: true
-    t.integer  "trigger_id"
-    t.string   "trigger_type"
-    t.text     "description"
-    t.datetime "created_at",                    null: false
-    t.datetime "updated_at",                    null: false
+    t.integer "recipient_id"
+    t.string  "recipient_type"
+    t.integer "sender_id"
+    t.string  "sender_type"
+    t.boolean "unread",         default: true
+    t.integer "trigger_id"
+    t.string  "trigger_type"
+    t.text    "description"
   end
 
   create_table "users", force: :cascade do |t|
