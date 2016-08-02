@@ -1,0 +1,9 @@
+<p>Hey there, <%= @recipient.to_s %>!</p>
+
+<p><%= @notification.sender.to_s %> sent you a message:</p>
+
+<blockquote>
+  <%= simple_format @notification.trigger.content %>
+</blockquote>
+
+<p>Cheers!</p>

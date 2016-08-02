@@ -3,7 +3,8 @@ class Message < ApplicationRecord
   # ---------------------------------------- Plugins
 
   notify_on :create, :to => :user, :from => :author,
-            :message => '{author_email} sent you a message.', :email => true
+            :message => '{author_email} sent you a message.', :email => true,
+            :template => 'new_message'
 
   # ---------------------------------------- Associations
 

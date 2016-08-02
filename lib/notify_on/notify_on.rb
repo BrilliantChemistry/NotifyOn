@@ -20,7 +20,8 @@ class << ActiveRecord::Base
         )
 
         if options[:email]
-          NotifyOn::NotificationMailer.notify(notification.id).deliver
+          NotifyOn::NotificationMailer
+            .notify(notification.id, options[:template]).deliver
         end
       end
 
