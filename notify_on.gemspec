@@ -25,6 +25,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'capybara'
   s.add_development_dependency 'devise'
   s.add_development_dependency 'factory_girl_rails'
+  s.add_development_dependency 'guard-rspec'
   s.add_development_dependency 'jquery-rails'
   s.add_development_dependency 'mailcatcher'
   s.add_development_dependency 'pg'
