@@ -1,4 +1,4 @@
-<header class="navbar navbar-light bg-faded">
+<header class="navbar navbar-default">
   <ul class="nav navbar-nav">
     <li class="nav-item <%= 'active' if request.path == root_path %>">
       <a class="nav-link" href="/">Home</a>
@@ -8,17 +8,29 @@
          href="<%= messages_path %>">Messages</a>
     </li>
   </ul>
-  <div class="links pull-xs-right">
-    <% if user_signed_in? %>
-      <ul class="nav navbar-nav">
-        <li class="nav-item">
+  <div class="links pull-right">
+    <ul class="nav navbar-nav">
+      <% if user_signed_in? %>
+        <li class="nav-item dropdown">
+          <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
+            <i class="glyphicon glyphicon-bell"></i>
+          </a>
+          <ul class="dropdown-menu pull-right">
+            <% current_user.notifications.each do |n| %>
+              <li><a href="#" class="dropdown-item"><%= n.description %></a></li>
+            <% end %>
+          </ul>
+        </li>
+      <% end %>
+      <li class="nav-item">
+        <% if user_signed_in? %>
           <%= link_to 'Sign Out', destroy_user_session_path,
                       :class => 'nav-link', :method => :delete %>
-        </li>
-      </ul>
-    <% else %>
-      <%= link_to 'Sign In', new_user_session_path,
-                  :class => 'btn btn-primary' %>
-    <% end %>
+        <% else %>
+          <%= link_to 'Sign In', new_user_session_path,
+                      :class => 'nav-link btn btn-primary' %>
+        <% end %>
+      </li>
+    </ul>
   </div>
 </header>

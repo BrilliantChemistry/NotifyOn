@@ -21,7 +21,9 @@ Gem::Specification.new do |s|
 
   s.add_development_dependency 'better_errors'
   s.add_development_dependency 'binding_of_caller'
-  s.add_development_dependency 'bootstrap', '~> 4.0.0.alpha3.1'
+  # s.add_development_dependency 'bootstrap', '~> 4.0.0.alpha3.1'
+  s.add_development_dependency 'bootstrap-sass', '~> 3.3.6'
+  s.add_development_dependency 'sass-rails', '>= 3.2'
   s.add_development_dependency 'capybara'
   s.add_development_dependency 'database_cleaner'
   s.add_development_dependency 'devise'

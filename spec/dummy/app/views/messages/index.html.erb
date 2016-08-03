@@ -8,7 +8,7 @@
 <div class="row">
   <div class="col-sm-4">
     <% if @inbox.present? %>
-      <%= render @inbox %>
+      <ul class="list-group"><%= render @inbox %></ul>
     <% else %>
       <div class="alert alert-warning">
         No messages yet!
@@ -23,7 +23,7 @@
 <div class="row">
   <div class="col-sm-4">
     <% if @sent.present? %>
-      <%= render @sent %>
+      <ul class="list-group"><%= render @sent %></ul>
     <% else %>
       <div class="alert alert-warning">
         No messages yet!

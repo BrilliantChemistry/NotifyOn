@@ -6,9 +6,10 @@ Bundler.require(*Rails.groups)
 require "notify_on"
 
 # Needed to require this manually or specs wouldn't run for the parent engine.
-require 'bootstrap'
+require 'bootstrap-sass'
 require 'devise'
 require 'jquery-rails'
+require 'sass-rails'
 require 'simple_form'
 
 module Dummy

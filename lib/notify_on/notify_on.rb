@@ -2,6 +2,11 @@ class << ActiveRecord::Base
 
   def notify_on(action, options = {})
 
+    options[:to].to_s.classify.constantize.class_eval do
+      has_many :notifications, :class_name => NotifyOn::Notification,
+               :as => :recipient
+    end
+
     case action.to_sym
     when :create
 
