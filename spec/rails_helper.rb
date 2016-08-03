@@ -4,6 +4,7 @@ require File.expand_path("../dummy/config/environment", __FILE__)
 # Prevent database truncation if the environment is production
 abort("The Rails environment is running in production mode!") if Rails.env.production?
 require 'faker'
+require 'database_cleaner'
 require 'spec_helper'
 require 'rspec/rails'
 # Add additional requires below this line. Rails is not loaded until this point!
@@ -61,5 +62,26 @@ RSpec.configure do |config|
       .expand_path("../dummy/spec/factories", __FILE__)
     # puts FactoryGirl.definition_file_paths.class.to_s
     FactoryGirl.find_definitions
+  end
+
+  config.before(:suite) do
+    DatabaseCleaner.clean_with(:truncation)
+  end
+
+  config.before(:each) do
+    # DatabaseCleaner.strategy = :transaction
+  end
+
+  config.before(:each, :js => true) do
+    DatabaseCleaner.strategy = :truncation
+    page.driver.resize(1600, 1200)
+  end
+
+  config.before(:each) do
+    DatabaseCleaner.start
+  end
+
+  config.after(:each) do
+    DatabaseCleaner.clean
   end
 end
