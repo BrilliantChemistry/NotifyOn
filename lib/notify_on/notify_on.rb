@@ -5,8 +5,8 @@ class << ActiveRecord::Base
     include NotifyOn::Helpers
 
     options[:to].to_s.classify.constantize.class_eval do
-      has_many :notifications, :class_name => NotifyOn::Notification,
-               :as => :recipient
+      has_many :notifications, -> { preloaded },
+               :class_name => NotifyOn::Notification, :as => :recipient
     end
 
     case action.to_sym

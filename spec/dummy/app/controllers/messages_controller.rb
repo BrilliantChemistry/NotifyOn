@@ -18,6 +18,10 @@ class MessagesController < ApplicationController
     end
   end
 
+  def show
+    @message = current_user.messages.find_by_id(params[:id])
+  end
+
   private
 
     def message_params

@@ -4,3 +4,25 @@
 #container {
   padding: 10px 25px;
 }
+
+#notifications-menu {
+  .dropdown-menu > li > a {
+    min-width: 350px;
+    white-space: normal;
+  }
+  img {
+    float: left;
+    width: 50px;
+  }
+  .time {
+    display: block;
+    float: left;
+    margin-left: 15px;
+    font-size: 80%;
+    font-weight: 600;
+  }
+  .desc {
+    display: block;
+    margin: 20px 0px 0px 65px;
+  }
+}

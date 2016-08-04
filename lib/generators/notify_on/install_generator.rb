@@ -11,6 +11,8 @@ module NotifyOn
 
       gsub_file Dir.glob('db/migrate/*.rb').last, /t\.boolean\ \:unread/,
                 't.boolean :unread, :default => true'
+      gsub_file Dir.glob('db/migrate/*.rb').last, /t\.string\ \:link/,
+                "t.string :link\n      t.timestamps"
     end
 
   end

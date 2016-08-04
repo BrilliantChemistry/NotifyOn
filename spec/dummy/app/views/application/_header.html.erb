@@ -11,7 +11,7 @@
   <div class="links pull-right">
     <ul class="nav navbar-nav">
       <% if user_signed_in? %>
-        <li class="nav-item dropdown">
+        <li class="nav-item dropdown" id="notifications-menu">
           <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
             <i class="glyphicon glyphicon-bell"></i>
           </a>
@@ -19,7 +19,11 @@
             <% current_user.notifications.each do |n| %>
               <li>
                 <a href="<%= n.link %>" class="dropdown-item">
-                  <%= n.description %>
+                  <img src="<%= avatar(n.recipient) %>" alt="">
+                  <span class="time">
+                    <%= time_ago_in_words n.created_at %> ago
+                  </span>
+                  <span class="desc"><%= n.description %></span>
                 </a>
               </li>
             <% end %>
@@ -32,7 +36,7 @@
                       :class => 'nav-link', :method => :delete %>
         <% else %>
           <%= link_to 'Sign In', new_user_session_path,
-                      :class => 'nav-link btn btn-primary' %>
+                      :class => 'nav-link' %>
         <% end %>
       </li>
     </ul>
