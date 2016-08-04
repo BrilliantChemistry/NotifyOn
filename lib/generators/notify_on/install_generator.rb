@@ -1,7 +1,7 @@
 module NotifyOn
   class InstallGenerator < Rails::Generators::Base
 
-    source_root File.expand_path("../templates", __FILE__)
+    source_root File.expand_path("../../templates", __FILE__)
 
     def generate_migration
       attrs  = "recipient_id:integer recipient_type:string sender_id:integer "
@@ -13,6 +13,10 @@ module NotifyOn
                 't.boolean :unread, :default => true'
       gsub_file Dir.glob('db/migrate/*.rb').last, /t\.string\ \:link/,
                 "t.string :link\n      t.timestamps"
+    end
+
+    def copy_initializer
+      template "notify_on.rb", "config/initializers/notify_on.rb"
     end
 
   end
