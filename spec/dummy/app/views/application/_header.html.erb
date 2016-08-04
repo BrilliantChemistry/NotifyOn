@@ -17,7 +17,11 @@
           </a>
           <ul class="dropdown-menu pull-right">
             <% current_user.notifications.each do |n| %>
-              <li><a href="#" class="dropdown-item"><%= n.description %></a></li>
+              <li>
+                <a href="<%= n.link %>" class="dropdown-item">
+                  <%= n.description %>
+                </a>
+              </li>
             <% end %>
           </ul>
         </li>

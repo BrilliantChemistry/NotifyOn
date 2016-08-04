@@ -4,7 +4,7 @@ class Message < ApplicationRecord
 
   notify_on :create, :to => :user, :from => :author,
             :message => '{author_email} sent you a message.', :email => true,
-            :template => 'new_message'
+            :template => 'new_message', :link => [:message_path, :self]
 
   # ---------------------------------------- Associations
 

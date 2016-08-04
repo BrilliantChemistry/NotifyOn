@@ -17,6 +17,7 @@ module NotifyOn
       Rails.application.eager_load!
       ActiveRecord::Base.descendants.each do |model|
         next if model.abstract_class?
+        next unless ActiveRecord::Base.connection.table_exists? model.table_name
         model.new
       end
     end

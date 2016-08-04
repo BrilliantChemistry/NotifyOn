@@ -32,6 +32,7 @@ ActiveRecord::Schema.define(version: 20160802123058) do
     t.integer "trigger_id"
     t.string  "trigger_type"
     t.text    "description"
+    t.string  "link"
   end
 
   create_table "users", force: :cascade do |t|

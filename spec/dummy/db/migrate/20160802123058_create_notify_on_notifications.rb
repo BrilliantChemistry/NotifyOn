@@ -9,6 +9,7 @@ class CreateNotifyOnNotifications < ActiveRecord::Migration[5.0]
       t.integer :trigger_id
       t.string :trigger_type
       t.text :description
+      t.string :link
     end
   end
 end
