@@ -3,6 +3,9 @@ require 'notify_on/configuration'
 require 'notify_on/helpers'
 require 'notify_on/notify_on'
 
+require 'pusher'
+require 'em-http-request'
+
 module NotifyOn
   class << self
     attr_writer :configuration

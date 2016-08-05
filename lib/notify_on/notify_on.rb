@@ -19,11 +19,18 @@ class << ActiveRecord::Base
           :recipient => send(options[:to].to_s),
           :sender => send(options[:from].to_s),
           :trigger => self,
-          :description => notify_on_description(options[:message]),
+          :description => notify_on_string_conversion(options[:message]),
           :link => notify_on_link(options[:link])
         )
 
         notify_on_send_email(notification, options[:template]) if options[:email]
+
+        if options[:pusher]
+          notify_on_trigger_pusher(options[:pusher][:channel],
+                                   options[:pusher][:event],
+                                   :notification => notification.to_json,
+                                   :trigger => self.to_json)
+        end
       end
 
     end

@@ -18,6 +18,8 @@ Gem::Specification.new do |s|
   s.files = Dir['{app,config,db,lib}/**/*', 'MIT-LICENSE', 'Rakefile', 'README.md']
 
   s.add_dependency 'rails', '>= 4.2'
+  s.add_dependency 'pusher'
+  s.add_dependency 'em-http-request'
 
   s.add_development_dependency 'better_errors'
   s.add_development_dependency 'binding_of_caller'
