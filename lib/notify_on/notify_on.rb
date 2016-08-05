@@ -4,9 +4,14 @@ class << ActiveRecord::Base
 
     include NotifyOn::Helpers
 
+    has_many :notifications, -> { preloaded },
+             :class_name => NotifyOn::Notification, :as => :trigger,
+             :dependent => :destroy
+
     options[:to].to_s.classify.constantize.class_eval do
       has_many :notifications, -> { preloaded },
-               :class_name => NotifyOn::Notification, :as => :recipient
+               :class_name => NotifyOn::Notification, :as => :recipient,
+               :dependent => :destroy
     end
 
     case action.to_sym

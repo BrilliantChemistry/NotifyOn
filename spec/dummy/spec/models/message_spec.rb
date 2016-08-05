@@ -19,6 +19,13 @@ RSpec.describe Message, :type => :model do
       expect(notification.description)
         .to eq("#{message.author.email} sent you a message.")
     end
+
+    it 'deletes its notifications when it is deleted' do
+      message
+      expect(message.notifications.count).to eq(1)
+      message.destroy
+      expect(NotifyOn::Notification.count).to eq(0)
+    end
   end
 
 end

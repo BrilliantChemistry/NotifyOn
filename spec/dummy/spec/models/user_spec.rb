@@ -14,4 +14,12 @@ RSpec.describe User, :type => :model do
     expect(user.respond_to?(:notifications)).to eq(true)
   end
 
+  it 'deletes its notifications when it is deleted' do
+    user
+    create(:message, :user => user)
+    expect(user.notifications.count).to eq(1)
+    user.destroy
+    expect(NotifyOn::Notification.count).to eq(0)
+  end
+
 end
