@@ -12,7 +12,7 @@ module NotifyOn
       end
 
       def notify_on_link(input)
-        return input unless input.is_a?(Array)
+        return notify_on_string_conversion(input) unless input.is_a?(Array)
         args = []
         input[1..-1].each do |arg|
           args << if arg == :self
