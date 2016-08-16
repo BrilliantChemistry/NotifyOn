@@ -8,7 +8,13 @@ class << ActiveRecord::Base
              :class_name => NotifyOn::Notification, :as => :trigger,
              :dependent => :destroy
 
-    options[:to].to_s.classify.constantize.class_eval do
+    notify_on_to = if reflect_on_association(options[:to]).nil?
+      options[:to_class_name].to_s
+    else
+      reflect_on_association(options[:to]).class_name
+    end
+
+    notify_on_to.constantize.class_eval do
       has_many :notifications, -> { preloaded },
                :class_name => NotifyOn::Notification, :as => :recipient,
                :dependent => :destroy
@@ -20,21 +26,26 @@ class << ActiveRecord::Base
       after_create :"notify_#{options[:to]}_on_create"
 
       define_method "notify_#{options[:to]}_on_create" do
-        notification = NotifyOn::Notification.create(
-          :recipient => send(options[:to].to_s),
-          :sender => send(options[:from].to_s),
-          :trigger => self,
-          :description => notify_on_string_conversion(options[:message]),
-          :link => notify_on_link(options[:link])
-        )
+        send(options[:to].to_s).to_a.each do |recipient|
+          notification = NotifyOn::Notification.create(
+            :recipient => recipient,
+            :sender => options[:from].blank? ? nil : send(options[:from].to_s),
+            :trigger => self,
+            :description => notify_on_string_conversion(options[:message]),
+            :link => notify_on_link(options[:link]),
+            :use_default_email => options[:use_default_email] || false
+          )
 
-        notify_on_send_email(notification, options[:template]) if options[:email]
+          if options[:email]
+            notify_on_send_email(notification, options[:template])
+          end
 
-        if options[:pusher]
-          notify_on_trigger_pusher(options[:pusher][:channel],
-                                   options[:pusher][:event],
-                                   :notification => notification.to_json,
-                                   :trigger => self.to_json)
+          if options[:pusher]
+            notify_on_trigger_pusher(options[:pusher][:channel],
+                                     options[:pusher][:event],
+                                     :notification => notification.to_json,
+                                     :trigger => self.to_json)
+          end
         end
       end
 

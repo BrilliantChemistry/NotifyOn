@@ -46,11 +46,13 @@ notify_on(action, options = {})
 
 | Name | Type | Description |
 | --- | --- | --- |
-| `to` | `symbol` | **Required.** Who to send the notification _to_. It **must be a method on the model that triggered the notification**, and it **must have an `email` attribute** if you are are using email notifications. <small>(See note on `to_s` below.)</small> |
-| `from` | `symbol` | **Required.** Who the notification is sent _from_. It **must be a method on the model that triggered the notification**, and it **must have an `email` attribute** if you are are using email notifications. <small>(See note on `to_s` below.)</small> |
+| `to` | `symbol` | **Required.** Who to send the notification _to_. It should be a method (or association) on the model that triggered the notification. It may be a single object or a collection (array) of objects. But, each individual object **must have an `email` attribute** if you are using email notifications. <small>(See note on `to_s` below.)</small> |
+| `from` | `symbol` | Who the notification is sent _from_. It **must be a method on the model that triggered the notification**, and it **must have an `email` attribute** if you are are using email notifications. <small>(See note on `to_s` below.)</small> If you omit this and have email notifications enabled, the mailer will use your configured default email address. |
 | `message` | `string` (interpolated) | **Required.** The message that describes the notification itself. <small>(See _String Interpolation_ for more information.)</small> |
 | `link` | `array` or `string` (interpolated) | **Required**. Uses Rails' URL helper to generate a reference link for the notification. |
+| `to_class_name` | `string` | **Required** _if `to` is an array_. If you are generating notifications for a collection of objects, you must set this to the class name of the individual objects within the array (which, should all be of the same class). |
 | `email` | `boolean` | (Default: `false`) Whether or not to send an email notification. |
+| `use_default_email` | `boolean` | (Default: `false`) If you have `email` enabled and `from` is set, you can optionally send the email notification _from_ your default email address (in the configuration file). |
 | `template` | `string` or `symbol` | (Default: `nil`) The name of the email template to render. This only applies if `email` is `true` and you wish to override the default mailer. <small>(See _Override Default Email_ for more information.)</small> |
 | `pusher` | `hash` | (Default: `nil`) Pusher provides access to real-time notifications. This hash should contain the following: <ul><li>`channel` (interpolated `string`) as the name of the channel</li><li>`event` (`string` or `symbol`) as the name of the Pusher event</li></ul> <small>(See _Pusher_ section for more information.)</small> |
 
@@ -71,6 +73,7 @@ notify_on(
   :from => :author,
   :message => '{author_email} sent you a message.',
   :email => true,
+  :use_default_email => true,
   :template => 'new_message',
   :link => [:message_path, :self],
   :pusher => { :channel => "presence-message-{id}", :event => :new_message }
@@ -136,7 +139,7 @@ Unfortunately, we have a few caveats:
 1. Non-inferred parameters are not supported. (You can't do something like `:user_id => :author_id`.) If you want to do that, you should use an interpolated string instead of this array-based method.
 2. Links are stored on the notification object. If you change your routes, you'll need to update all affected notifications. The easiest way to do this is through a migration.
 
-### Override Default Email
+### Override Default Email Message
 
 NotifyOn has a very basic email template that uses the description to notify the `to` in your `notify_on` configuration.
 
@@ -159,3 +162,7 @@ NotifyOn automatically attaches an association to the object you specify as `to`
 [Pusher](https://pusher.com/) is a service that provides a websocket to access real-time information. While it is up to you to configure and support Pusher in your application, NotifyOn helps out a little.
 
 You must specify `pusher` in a `notify_on` configuration. And if you do, you must also add your credentials to `config/initializers/notify_on.rb`. If everything is in place, NotifyOn will trigger an event in Pusher with the `notification` and `trigger`, so you can get any relevant associations.
+
+### Overriding Mailer Class
+
+Email notifications use the `NotifyOn::NotificationMailer` class. You may need to customize the default class for your application. You can do this by setting `mailer_class` in `config/initializers/notify_on.rb`.
