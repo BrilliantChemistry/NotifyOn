@@ -15,11 +15,10 @@ module NotifyOn
       # is defined. This triggers the dynamic associations defined when
       # :notify_on is called.
       Rails.application.eager_load!
-      ActiveRecord::Base.descendants.each do |model|
-        next if model.abstract_class?
-        next unless ActiveRecord::Base.connection
-          .data_source_exists?(model.table_name)
-        model.new
+      ActiveRecord::Base.descendants.each do |m|
+        next if m.abstract_class?
+        next unless ActiveRecord::Base.connection.table_exists?(m.table_name)
+        m.new
       end
     end
 
