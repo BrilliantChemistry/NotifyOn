@@ -10,6 +10,14 @@ module NotifyOn
     # ---------------------------------------- Scopes
 
     scope :preloaded, -> { includes(:recipient, :sender, :trigger) }
+    scope :unread, -> { where(:unread => true) }
+    scope :recent, -> { order(:created_at => :desc) }
+
+    # ---------------------------------------- Instance Methods
+
+    def read!
+      update_columns(:unread => false)
+    end
 
   end
 end
