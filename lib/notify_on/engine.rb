@@ -10,17 +10,5 @@ module NotifyOn
       g.helper false
     end
 
-    config.after_initialize do
-      # Create an instance of each model so that we can hit :notify_on where it
-      # is defined. This triggers the dynamic associations defined when
-      # :notify_on is called.
-      Rails.application.eager_load!
-      ActiveRecord::Base.descendants.each do |m|
-        next if m.abstract_class?
-        next unless ActiveRecord::Base.connection.table_exists?(m.table_name)
-        m.new
-      end
-    end
-
   end
 end

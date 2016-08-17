@@ -2,7 +2,7 @@
 NotifyOn.configure do |config|
 
   # ---------------------------------------- Email
-  #
+
   # Email messages are a common way to let a user know they have a new
   # notification. In some cases, you want that notification to come from another
   # user. Other times, your system may handle it. Defining a default email
@@ -17,27 +17,21 @@ NotifyOn.configure do |config|
   # config.mailer_class = 'NotifyOn::NotificationMailer'
 
   # ---------------------------------------- Pusher
-  #
+
   # Pusher enables you to send notifications in real-time. Learn more about
-  # Pusher at https://pusher.com. If you are going to use pusher, the following
-  # values are required:
+  # Pusher at https://pusher.com. If you are going to use Pusher, you need to
+  # include the following values:
   #
   # config.pusher_app_id = 'my_app_id'
   # config.pusher_key = 'my_key'
   # config.pusher_secret = 'my_secret'
   #
-  # Note: You will likely want these values dependent on your environment. You
-  # can use a conditional clause here, or you may set these values instead in
-  # your specific environment configuration files. Here's an example:
+  # Note: You may want to use environment-dependent values, not tracked by git,
+  # so your secrets are not exposed. You may choose to use Rails' secrets for
+  # this. For example:
   #
-  # if Rails.env.production?
-  #   config.pusher_app_id = 'my_app_id'
-  #   config.pusher_key = 'my_key'
-  #   config.pusher_secret = 'my_secret'
-  # else
-  #   config.pusher_app_id = 'my_app_id'
-  #   config.pusher_key = 'my_key'
-  #   config.pusher_secret = 'my_secret'
-  # end
+  # config.pusher_app_id = Rails.application.secrets.pusher_app_id
+  # config.pusher_key = Rails.application.secrets.pusher_key
+  # config.pusher_secret = Rails.application.secrets.pusher_secret
 
 end

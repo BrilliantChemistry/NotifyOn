@@ -80,6 +80,18 @@ notify_on(
 )
 ```
 
+### receives\_notifications
+
+We've had issues attempting to dynamically generate an association on the model represented by the `to` argument in a `notify_on` call. This was specifically troublesome in cases using single table inheritance.
+
+As a result, NotifyOn requires that you explicitly set associations for your notification recipients. All you have to do is put the following **in the model representing objects that _receive_ notifications**:
+
+```ruby
+receives_notifications
+```
+
+This will provide an association, `notifications`, to that model. See _Automatic Associations_ below for details on how NotifyOn associations work.
+
 Custom Features
 ----------
 
@@ -155,7 +167,9 @@ Within this view, you have access to the notification as `@notification`. From t
 
 ### Automatic Associations
 
-NotifyOn automatically attaches an association to the object you specify as `to`. That object (assuming it is inherited from `ActiveRecord::Base`) can access its notifications via `notifications`. For example, if your `to` is represented by `current_user`, then `current_user.notifications` would get you that objects notifications. (It also eager loads the `recipient`, `sender`, and `trigger` associations on the notification to avoid running into `N+1` problems.)
+NotifyOn automatically attaches an association to the model in which you've called `notify_on`. For example, if you added notifications to a `Message` model, then an instance of a message -- let's call it `message` -- would have access to its notifications through `message.notifications`. It also eager loads the `recipient` and `sender` associations on the notification to avoid running into `N+1` problems.
+
+You can attach notifications to the `to` argument you pass to `notify_on`, but you must state that explicitly. See the _receives\_notifications_ section above.
 
 ### Pusher (Real-Time Notifications)
 

@@ -14,12 +14,6 @@ class << ActiveRecord::Base
       reflect_on_association(options[:to]).class_name
     end
 
-    notify_on_to.constantize.class_eval do
-      has_many :notifications, -> { preloaded },
-               :class_name => NotifyOn::Notification, :as => :recipient,
-               :dependent => :destroy
-    end
-
     case action.to_sym
     when :create
 
