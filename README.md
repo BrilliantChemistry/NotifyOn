@@ -54,7 +54,7 @@ notify_on(action, options = {})
 | `email` | `boolean` | (Default: `false`) Whether or not to send an email notification. |
 | `use_default_email` | `boolean` | (Default: `false`) If you have `email` enabled and `from` is set, you can optionally send the email notification _from_ your default email address (in the configuration file). |
 | `template` | `string` or `symbol` | (Default: `nil`) The name of the email template to render. This only applies if `email` is `true` and you wish to override the default mailer. <small>(See _Override Default Email_ for more information.)</small> |
-| `pusher` | `hash` | (Default: `nil`) Pusher provides access to real-time notifications. This hash should contain the following: <ul><li>`channel` (interpolated `string`) as the name of the channel</li><li>`event` (`string` or `symbol`) as the name of the Pusher event</li></ul> <small>(See _Pusher_ section for more information.)</small> |
+| `pusher` | `hash` | (Default: `nil`) Pusher provides access to real-time notifications. This hash should contain the following: <ul><li>`channel` (interpolated `string` with added options) as the name of the channel</li><li>`event` (interpolated `string` with added options or `symbol`) as the name of the Pusher event</li></ul> <small>(See _Pusher_ section for more information.)</small> |
 
 _Note: Many of the defaults within `notify_on` make use of the `to_s` method. It's a good idea to override `to_s` on the models representing your `to` and `from` objects on a notification. Most of the time, this is a `User` object, so your `User` model may have something like this:_
 
@@ -121,6 +121,25 @@ def author_email
   author.email
 end
 ```
+
+#### Added Options
+
+In some cases, we add a few options to string interpolation. These options must use a colon (`:`) before the method call. They are:
+
+- `:env`: A lower-case string representing the current Rails environment.
+- `:recipient_id`: The `id` of the recipient object attached to a notification.
+
+For example, in a pusher channel, you might specify something like this:
+
+```ruby
+# ...
+:pusher => {
+  :channel => 'presence-{:env}-notification-{:recipient_id}',
+  :event => :new_notification
+}
+```
+
+The `channel` option here may resolve to something like `presence-development-notification-24`.
 
 ### Dynamic Link Generator
 
