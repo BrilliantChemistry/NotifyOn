@@ -26,7 +26,7 @@ module NotifyOn
 
       def notify_on_send_email(notification, template)
         NotifyOn.configuration.mailer_class.constantize
-                .notify(notification.id, template).deliver
+                .notify(notification.id, template).deliver_now
       end
 
       def notify_on_trigger_pusher(channel, event, attrs)
