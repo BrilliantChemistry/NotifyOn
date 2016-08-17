@@ -34,8 +34,14 @@ module NotifyOn
         Pusher.key    = NotifyOn.configuration.pusher_key
         Pusher.secret = NotifyOn.configuration.pusher_secret
 
+        recipient_id = JSON.parse(attrs[:notification])["recipient_id"].to_s
+
         channel = notify_on_string_conversion(channel)
+          .gsub(/\{:env}/, Rails.env.downcase)
+          .gsub(/\{:recipient_id}/, recipient_id)
         event = notify_on_string_conversion(event)
+          .gsub(/\{:env}/, Rails.env.downcase)
+          .gsub(/\{:recipient_id}/, recipient_id)
 
         msg  = "Pusher Event: #{event} // To Channel: #{channel}\n#{attrs}"
         Rails.logger.debug(msg)
