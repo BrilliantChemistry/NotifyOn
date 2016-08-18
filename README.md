@@ -46,8 +46,8 @@ notify_on(action, options = {})
 
 | Name | Type | Description |
 | --- | --- | --- |
-| `to` | `symbol` | **Required.** Who to send the notification _to_. It should be a method (or association) on the model that triggered the notification. It may be a single object or a collection (array) of objects. But, each individual object **must have an `email` attribute** if you are using email notifications. <small>(See note on `to_s` below.)</small> |
-| `from` | `symbol` | Who the notification is sent _from_. It **must be a method on the model that triggered the notification**, and it **must have an `email` attribute** if you are are using email notifications. <small>(See note on `to_s` below.)</small> If you omit this and have email notifications enabled, the mailer will use your configured default email address. |
+| `to` | `symbol` | **Required.** Who to send the notification _to_. It should be a method (or association) on the model that triggered the notification. It may be a single object or a collection (array) of objects. But, each individual object **must have an `email` attribute/method** if you are using email notifications. <small>(See note on `to_s` below.)</small> |
+| `from` | `symbol` | Who the notification is sent _from_. It **must be a method on the model that triggered the notification**, and it **must have an `email` attribute/method** if you are are using email notifications. <small>(See note on `to_s` below.)</small> If you omit this and have email notifications enabled, the mailer will use your configured default email address. |
 | `message` | `string` (interpolated) | **Required.** The message that describes the notification itself. <small>(See _String Interpolation_ for more information.)</small> |
 | `link` | `array` or `string` (interpolated) | **Required**. Uses Rails' URL helper to generate a reference link for the notification. |
 | `to_class_name` | `string` | **Required** _if `to` is an array_. If you are generating notifications for a collection of objects, you must set this to the class name of the individual objects within the array (which, should all be of the same class). |
@@ -97,21 +97,9 @@ Custom Features
 
 ### String Interpolation
 
-NotifyOn has a custom string interpolator for injecting an object's attributes. We can't use Ruby's interpolator because we don't have access to instance methods at the time we define `notify_on`.
+NotifyOn has a custom string interpolator for injecting an object's attributes. We can't use Ruby's built-in interpolatation because we don't have access to instance methods at the time we define `notify_on`.
 
-The syntax is similar to Ruby's interpolated strings. It just omits the `#` character.
-
-The most important thing to remember is that the variable/method being interpolated is defined on an instance **of the object that triggered the notification**.
-
-For example, you **can't** do something like this:
-
-
-```ruby
-# ...
-:message => '{author.email} sent you a message.'
-```
-
-But you **can** do this:
+NotifyOn's string interpolation syntax is similar to Ruby's. It just omits the `#` character. Here's an example:
 
 ```ruby
 # ...
@@ -120,6 +108,14 @@ But you **can** do this:
 def author_email
   author.email
 end
+```
+
+You also have the option to daisy-chain methods together. So, this will work, too, assuming `author` has an `email` attribute or method.
+
+
+```ruby
+# ...
+:message => '{author.email} sent you a message.'
 ```
 
 #### Added Options

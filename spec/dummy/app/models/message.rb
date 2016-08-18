@@ -3,7 +3,7 @@ class Message < ApplicationRecord
   # ---------------------------------------- Plugins
 
   notify_on :create, :to => :user, :from => :author,
-            :message => '{author_email} sent you a message.', :email => true,
+            :message => '{author.email} sent you a message.', :email => true,
             :template => 'new_message', :link => [:message_path, :self],
             :pusher => { :channel => "presence-message-{id}",
                          :event => :new_message }

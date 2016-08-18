@@ -5,8 +5,9 @@ module NotifyOn
     included do
 
       def notify_on_string_conversion(input)
-        (output = input.to_s).scan(/{[\w\_]+}/).each do |match|
-          output = output.gsub(/#{match}/, send(match.gsub(/[^\w\_]/, '')).to_s)
+        (output = input.to_s).scan(/{[\w\_\.]+}/).each do |match|
+          result = match.gsub(/[^\w\_\.]/, '').split('.').inject(self, :send)
+          output = output.gsub(/#{match}/, result.to_s)
         end
         output
       end
