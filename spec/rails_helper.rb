@@ -80,6 +80,7 @@ RSpec.configure do |config|
 
   config.before(:each) do
     DatabaseCleaner.start
+    ActionMailer::Base.deliveries = []
   end
 
   config.after(:each) do
@@ -90,4 +91,5 @@ RSpec.configure do |config|
   config.include Devise::Test::ControllerHelpers, :type => :controller
   config.include Warden::Test::Helpers, :type => :feature
   config.include FeatureHelpers, :type => :feature
+  config.include GeneralHelpers
 end
