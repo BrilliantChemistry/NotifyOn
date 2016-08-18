@@ -20,7 +20,8 @@ class << ActiveRecord::Base
       after_create :"notify_#{options[:to]}_on_create"
 
       define_method "notify_#{options[:to]}_on_create" do
-        send(options[:to].to_s).to_a.each do |recipient|
+        to = send(options[:to].to_s)
+        (to.is_a?(Array) ? to : [to]).each do |recipient|
           notification = NotifyOn::Notification.create(
             :recipient => recipient,
             :sender => options[:from].blank? ? nil : send(options[:from].to_s),

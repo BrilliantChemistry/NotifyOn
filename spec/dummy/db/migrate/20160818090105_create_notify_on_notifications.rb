@@ -11,6 +11,7 @@ class CreateNotifyOnNotifications < ActiveRecord::Migration[5.0]
       t.text :description
       t.string :link
       t.timestamps
+      t.boolean :use_default_email, :default => false
     end
   end
 end
