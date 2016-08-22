@@ -49,11 +49,9 @@ notify_on(action, options = {})
 | `to` | `symbol` | **Required.** Who to send the notification _to_. It should be a method (or association) on the model that triggered the notification. It may be a single object or a collection (array) of objects. But, each individual object **must have an `email` attribute/method** if you are using email notifications. <small>(See note on `to_s` below.)</small> |
 | `from` | `symbol` | Who the notification is sent _from_. It **must be a method on the model that triggered the notification**, and it **must have an `email` attribute/method** if you are are using email notifications. <small>(See note on `to_s` below.)</small> If you omit this and have email notifications enabled, the mailer will use your configured default email address. |
 | `message` | `string` (interpolated) | **Required.** The message that describes the notification itself. <small>(See _String Interpolation_ for more information.)</small> |
-| `link` | `array` or `string` (interpolated) | **Required**. Uses Rails' URL helper to generate a reference link for the notification. |
+| `link` | `string` (interpolated) | **Required**. Uses Rails' URL helper to generate a reference link for the notification. |
 | `to_class_name` | `string` | **Required** _if `to` is an array_. If you are generating notifications for a collection of objects, you must set this to the class name of the individual objects within the array (which, should all be of the same class). |
-| `email` | `boolean` | (Default: `false`) Whether or not to send an email notification. |
-| `use_default_email` | `boolean` | (Default: `false`) If you have `email` enabled and `from` is set, you can optionally send the email notification _from_ your default email address (in the configuration file). |
-| `template` | `string` or `symbol` | (Default: `nil`) The name of the email template to render. This only applies if `email` is `true` and you wish to override the default mailer. <small>(See _Override Default Email_ for more information.)</small> |
+| `email` | `hash` | (Default: `nil`) If present, it will attempt to send an email notification. Options: <ul><li>`default_from` (`boolean`) Use the default email address as sender instead of the notification's sender.</li><li>`template` (`string` or `symbol`) The name of the email template to render.</li><li>`send_unless` (`symbol`) a method on the trigger that returns a boolean. If `true` the email **will not** be sent. It falls back to methods on the notification if it doesn't find a match.</li> |
 | `pusher` | `hash` | (Default: `nil`) Pusher provides access to real-time notifications. This hash should contain the following: <ul><li>`channel` (interpolated `string` with added options) as the name of the channel</li><li>`event` (interpolated `string` with added options or `symbol`) as the name of the Pusher event</li></ul> <small>(See _Pusher_ section for more information.)</small> |
 
 _Note: Many of the defaults within `notify_on` make use of the `to_s` method. It's a good idea to override `to_s` on the models representing your `to` and `from` objects on a notification. Most of the time, this is a `User` object, so your `User` model may have something like this:_
@@ -141,30 +139,37 @@ The `channel` option here may resolve to something like `presence-development-no
 
 NotifyOn's dynamic link generator helps make your configuration a little simpler. We can't call the the URL helper directly from the `notify_on` call, so we are forced to get a little clever.
 
-We take the components of the URL helper, including its arguments, and add them to an array.
+You can specify the relevant URL using a `_path` or `_url` helper, just as you would in your controllers/views. There are really only three differences.
 
-Suppose your notification was on a message. In a view, you might have a route like this:
-
-```ruby
-author_message_path(message.author, message)
-```
-
-For the `notify_on` config, that would look like this:
+First, the argument must be a string. So, instead of this:
 
 ```ruby
-:link => [:author_message_path, :author, :self]
+:link => messages_path
 ```
 
-Notice three important pieces here:
+You need to do this:
 
-1. Every component within the array is a `symbol`, not the direct variable/method.
-2. The reference is from the message itself, so we don't use `message.author`, but just `author`.
-3. To reference the message, we pass `self` as a symbol.
+```ruby
+:link => 'messages_path'
+```
 
-Unfortunately, we have a few caveats:
+Second, arguments in the path must be called using symbols. This way you can use a string as an argument. So, not this
 
-1. Non-inferred parameters are not supported. (You can't do something like `:user_id => :author_id`.) If you want to do that, you should use an interpolated string instead of this array-based method.
-2. Links are stored on the notification object. If you change your routes, you'll need to update all affected notifications. The easiest way to do this is through a migration.
+```ruby
+:link => 'author_path(author)'
+```
+
+But this:
+
+```ruby
+:link => 'author_path(:author)'
+```
+
+And last, a reference to the trigger itself is written as `:self`. For example:
+
+```ruby
+:link => 'author_message_path(:author, :self)'
+```
 
 ### Override Default Email Message
 
@@ -195,3 +200,32 @@ You must specify `pusher` in a `notify_on` configuration. And if you do, you mus
 ### Overriding Mailer Class
 
 Email notifications use the `NotifyOn::NotificationMailer` class. You may need to customize the default class for your application. You can do this by setting `mailer_class` in `config/initializers/notify_on.rb`.
+
+### Conditionally Sending Email
+
+If you're using email notifications, you can choose to conditionally trigger the message. For example, say you have a `Project` model, and you don't want to send notifications if the project is private or stale.
+
+Using the `send_unless` option, you can pass a symbol representing an instance method on your trigger (a _project_ object in this case), and have it return a boolean.
+
+It might look something like this:
+
+```ruby
+class Project < ActiveRecord::Base
+
+  belongs_to :user
+
+  notify_on :to => :user, :message => 'xxx', :link => 'project_path(:self)',
+            :email => { :send_unless => :private_or_stale? }
+
+  private
+
+    def private_or_stale?
+      # Assume `private` is a boolean field in your table, and `closed_at` is
+      # a datetime field.
+      private? || (closed_at.present? && closed_at <= DateTime.now)
+    end
+
+end
+```
+
+If `private_or_stale?` returns `true`, your email **will not** be sent, but if it returns `false`, then the email will be sent.
