@@ -2,8 +2,6 @@ class << ActiveRecord::Base
 
   def notify_on(action, options = {})
 
-    include NotifyOn::Helpers
-
     has_many :notifications, -> { preloaded },
              :class_name => NotifyOn::Notification, :as => :trigger,
              :dependent => :destroy
@@ -22,24 +20,19 @@ class << ActiveRecord::Base
       define_method "notify_#{options[:to]}_on_create" do
         to = send(options[:to].to_s)
         (to.is_a?(Array) ? to : [to]).each do |recipient|
-          notification = NotifyOn::Notification.create(
-            :recipient => recipient,
-            :sender => options[:from].blank? ? nil : send(options[:from].to_s),
-            :trigger => self,
-            :description => notify_on_string_conversion(options[:message]),
-            :link => notify_on_link(options[:link]),
-            :use_default_email => options[:use_default_email] || false
-          )
 
-          if options[:email]
-            notify_on_send_email(notification, options[:template])
-          end
+          NotifyOn::Notification.transaction do
+            notification = NotifyOn::Notification.create!(
+              :recipient => recipient,
+              :sender => options[:from].blank? ? nil : send(options[:from].to_s),
+              :trigger => self,
+              :description_raw => options[:message],
+              :link_raw => options[:link],
+              :options => options
+            )
 
-          if options[:pusher]
-            notify_on_trigger_pusher(options[:pusher][:channel],
-                                     options[:pusher][:event],
-                                     :notification => notification.to_json,
-                                     :trigger => self.to_json)
+            notification.push! if options[:pusher].present?
+            notification.send_email! if options[:email].present?
           end
         end
       end
