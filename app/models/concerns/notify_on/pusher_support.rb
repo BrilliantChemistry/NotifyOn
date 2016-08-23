@@ -26,31 +26,31 @@ module NotifyOn
       ids.include?(recipient_id)
     end
 
+    def pusher_channel_name
+      return nil unless options[:pusher] && options[:pusher][:channel]
+      @pusher_channel_name ||= convert_string(options[:pusher][:channel])
+    end
+
+    def pusher_event_name
+      return nil unless options[:pusher] && options[:pusher][:event]
+      @pusher_event_name ||= convert_string(options[:pusher][:event])
+    end
+
+    def pusher_attrs
+      return nil unless options[:pusher]
+      {
+        :notification => self.to_json,
+        :trigger => trigger.to_json,
+        :data => options[:pusher][:data]
+      }
+    end
+
     private
 
       def pusher_config
         Pusher.app_id = NotifyOn.configuration.pusher_app_id
         Pusher.key    = NotifyOn.configuration.pusher_key
         Pusher.secret = NotifyOn.configuration.pusher_secret
-      end
-
-      def pusher_channel_name
-        return nil unless options[:pusher] && options[:pusher][:channel]
-        @pusher_channel_name ||= convert_string(options[:pusher][:channel])
-      end
-
-      def pusher_event_name
-        return nil unless options[:pusher] && options[:pusher][:event]
-        @pusher_event_name ||= convert_string(options[:pusher][:event])
-      end
-
-      def pusher_attrs
-        return nil unless options[:pusher]
-        {
-          :notification => self.to_json,
-          :trigger => trigger.to_json,
-          :data => options[:pusher][:data]
-        }
       end
 
   end

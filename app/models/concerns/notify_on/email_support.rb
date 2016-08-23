@@ -22,12 +22,12 @@ module NotifyOn
       end
     end
 
-    private
+    def email_template
+      return false unless options[:email]
+      @email_template ||= options[:email][:template]
+    end
 
-      def email_template
-        return false unless options[:email]
-        @email_template ||= options[:email][:template]
-      end
+    private
 
       def set_default_from
         return if options[:email].blank? || use_default_email?

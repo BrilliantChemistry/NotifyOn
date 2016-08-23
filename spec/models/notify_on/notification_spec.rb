@@ -37,21 +37,21 @@ module NotifyOn
     describe '#pusher_channel_name' do
       it 'interpolates the id' do
         # "send" is used because "pusher_channel_name" is a private method.
-        expect(@notification.send(:pusher_channel_name))
+        expect(@notification.pusher_channel_name)
           .to eq("presence-message-#{@notification.id}")
       end
     end
 
     describe '#pusher_event_name' do
       it 'interpolates the id' do
-        expect(@notification.send(:pusher_event_name))
+        expect(@notification.pusher_event_name)
           .to eq("new-message-#{@notification.id}")
       end
     end
 
     describe '#pusher_attrs' do
       it 'contains the notification, trigger, and optional data' do
-        attrs = @notification.send(:pusher_attrs)
+        attrs = @notification.pusher_attrs
         expect(attrs[:notification]).to eq(@notification.to_json)
         expect(attrs[:trigger]).to eq(@message.to_json)
         expect(attrs[:data]).to eq({ :is_chat => true })
@@ -62,7 +62,7 @@ module NotifyOn
 
     describe '#email_template' do
       it 'returns the name of the specified template' do
-        expect(@notification.send(:email_template)).to eq('new_message')
+        expect(@notification.email_template).to eq('new_message')
       end
     end
 
