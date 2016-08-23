@@ -5,9 +5,14 @@ class Message < ApplicationRecord
   notify_on :create, :to => :user, :from => :author,
             :message => '{author.email} sent you a message.',
             :link => 'message_path(:self)',
-            :email => { :template => 'new_message' },
+            :email => { :template => 'new_message', :send_unless => :delayed? },
             :pusher => { :channel => "presence-message-{id}",
-                         :event => :new_message }
+                         :event => 'new-message-{id}',
+                         :data => { :is_chat => true } }
+
+  # ---------------------------------------- Attributes
+
+  attr_accessor :delayed
 
   # ---------------------------------------- Associations
 
@@ -20,8 +25,8 @@ class Message < ApplicationRecord
 
   # ---------------------------------------- Instance Methods
 
-  def author_email
-    author.email
+  def delayed?
+    content.start_with?('[DELAYED]')
   end
 
 end
