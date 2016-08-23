@@ -8,10 +8,13 @@ class CreateNotifyOnNotifications < ActiveRecord::Migration[5.0]
       t.boolean :unread, :default => true
       t.integer :trigger_id
       t.string :trigger_type
-      t.text :description
-      t.string :link
-      t.timestamps
+      t.text :description_raw
+      t.text :description_cached
+      t.string :link_raw
+      t.string :link_cached
       t.boolean :use_default_email, :default => false
+      t.text :options
+      t.timestamps
     end
   end
 end
