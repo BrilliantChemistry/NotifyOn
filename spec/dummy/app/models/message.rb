@@ -2,7 +2,7 @@ class Message < ApplicationRecord
 
   # ---------------------------------------- Plugins
 
-  notify_on :create, :to => :user, :from => :author,
+  notify_on :create, :to => :user, :from => :author, :skip_if => :skip?,
             :message => '{author.email} sent you a message.',
             :link => 'message_path(:self)',
             :email => { :template => 'new_message', :send_unless => :delayed? },
@@ -27,6 +27,10 @@ class Message < ApplicationRecord
 
   def delayed?
     content.start_with?('[DELAYED]')
+  end
+
+  def skip?
+    content.start_with?('[SKIP]')
   end
 
 end

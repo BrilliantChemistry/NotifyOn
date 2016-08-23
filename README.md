@@ -50,6 +50,7 @@ notify_on(action, options = {})
 | `from` | `symbol` | Who the notification is sent _from_. It **must be a method on the model that triggered the notification**, and it **must have an `email` attribute/method** if you are are using email notifications. <small>(See note on `to_s` below.)</small> If you omit this and have email notifications enabled, the mailer will use your configured default email address. |
 | `message` | `string` (interpolated) | **Required.** The message that describes the notification itself. <small>(See _String Interpolation_ for more information.)</small> |
 | `link` | `string` (interpolated) | **Required**. Uses Rails' URL helper to generate a reference link for the notification. |
+| `skip_if` | `symbol` | The name of an instance method that returns a boolean. If `true`, a notification will not be created. If `false` or `nil`, it will. |
 | `to_class_name` | `string` | **Required** _if `to` is an array_. If you are generating notifications for a collection of objects, you must set this to the class name of the individual objects within the array (which, should all be of the same class). |
 | `email` | `hash` | (Default: `nil`) If present, it will attempt to send an email notification. Options: <ul><li>`default_from` (`boolean`) Use the default email address as sender instead of the notification's sender.</li><li>`template` (`string` or `symbol`) The name of the email template to render.</li><li>`send_unless` (`symbol`) a method on the trigger that returns a boolean. If `true` the email **will not** be sent. It falls back to methods on the notification if it doesn't find a match.</li> |
 | `pusher` | `hash` | (Default: `nil`) Pusher provides access to real-time notifications. This hash should contain the following: <ul><li>`channel` (interpolated `string` with added options) as the name of the channel</li><li>`event` (interpolated `string` with added options or `symbol`) as the name of the Pusher event</li></ul> <small>(See _Pusher_ section for more information.)</small> |
@@ -70,11 +71,13 @@ notify_on(
   :to => :user,
   :from => :author,
   :message => '{author_email} sent you a message.',
-  :email => true,
-  :use_default_email => true,
-  :template => 'new_message',
-  :link => [:message_path, :self],
-  :pusher => { :channel => "presence-message-{id}", :event => :new_message }
+  :link => 'message_path(:self)',
+  :skip_if => :stale?,
+  :email => { :default_from => true, :template => 'new_message' },
+  :pusher => {
+    :channel => 'presence-{:env}-message-{id}',
+    :event => :new_message
+  }
 )
 ```
 

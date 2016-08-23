@@ -6,6 +6,8 @@ class << ActiveRecord::Base
              :class_name => NotifyOn::Notification, :as => :trigger,
              :dependent => :destroy
 
+    attr_accessor :skip_notifications
+
     notify_on_to = if reflect_on_association(options[:to]).nil?
       options[:to_class_name].to_s
     else
@@ -18,6 +20,8 @@ class << ActiveRecord::Base
       after_create :"notify_#{options[:to]}_on_create"
 
       define_method "notify_#{options[:to]}_on_create" do
+        return if skip_notifications == true
+        return if options[:skip_if].present? && send(options[:skip_if]) == true
         to = send(options[:to].to_s)
         (to.is_a?(Array) ? to : [to]).each do |recipient|
 
