@@ -11,6 +11,12 @@ NotifyOn.configure do |config|
   #
   # config.default_email = 'No Reply <noreply@yourdomain.com>'
   #
+  # By default, NotifyOn will use the "email" attribute of the specified "from"
+  # object. You can always default to the default email address you specified by
+  # uncommenting the line below.
+  #
+  # config.use_default_email = true
+  #
   # You can also override the notification mailer class if you need to add
   # custom functionality not supported in NotifyOn's NotificationMailer class.
   #
@@ -33,5 +39,12 @@ NotifyOn.configure do |config|
   # config.pusher_app_id = Rails.application.secrets.pusher_app_id
   # config.pusher_key = Rails.application.secrets.pusher_key
   # config.pusher_secret = Rails.application.secrets.pusher_secret
+  #
+  # While you can configure your Pusher event in each "notify_on" call, you can
+  # also set your default configuration so you don't have to restate it for
+  # every notification.
+  #
+  # config.default_pusher_channel = 'presence_{:env}_notification_{:recipient_id}'
+  # config.default_pusher_event = 'new_notification'
 
 end

@@ -27,21 +27,25 @@ module NotifyOn
     end
 
     def pusher_channel_name
-      return nil unless options[:pusher] && options[:pusher][:channel]
-      @pusher_channel_name ||= convert_string(options[:pusher][:channel])
+      return nil unless options[:pusher].present?
+      channel = options[:pusher][:channel] if options[:pusher].respond_to?(:[])
+      channel = NotifyOn.configuration.default_pusher_channel if channel.blank?
+      @pusher_channel_name ||= convert_string(channel)
     end
 
     def pusher_event_name
-      return nil unless options[:pusher] && options[:pusher][:event]
-      @pusher_event_name ||= convert_string(options[:pusher][:event])
+      return nil unless options[:pusher].present?
+      event = options[:pusher][:event] if options[:pusher].respond_to?(:[])
+      event = NotifyOn.configuration.default_pusher_event if event.blank?
+      @pusher_event_name ||= convert_string(event)
     end
 
     def pusher_attrs
-      return nil unless options[:pusher]
+      return nil unless options[:pusher].present?
       {
         :notification => self.to_json,
         :trigger => trigger.to_json,
-        :data => options[:pusher][:data]
+        :data => (options[:pusher][:data] if options[:pusher].respond_to?(:[]))
       }
     end
 

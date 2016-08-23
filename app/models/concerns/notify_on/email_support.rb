@@ -31,7 +31,11 @@ module NotifyOn
 
       def set_default_from
         return if options[:email].blank? || use_default_email?
-        self.use_default_email = options[:email][:default_from] || false
+        self.use_default_email = if options[:email].respond_to?(:[])
+          options[:email][:default_from] ||
+          NotifyOn.configuration.use_default_email
+        else
+          NotifyOn.configuration.use_default_email
         return
       end
 

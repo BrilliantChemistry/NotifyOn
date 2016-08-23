@@ -1,6 +1,7 @@
 require 'notify_on/engine'
 require 'notify_on/configuration'
 require 'notify_on/receives_notifications'
+require 'notify_on/helpers'
 require 'notify_on/notify_on'
 
 require 'pusher'
