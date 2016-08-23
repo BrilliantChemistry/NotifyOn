@@ -24,7 +24,7 @@
 #  * zeus: 'zeus rspec' (requires the server to be started separately)
 #  * 'just' rspec: 'rspec'
 
-guard :rspec, cmd: "bundle exec rspec" do
+guard :rspec, cmd: "cd spec/dummy && bin/rails db:environment:set RAILS_ENV=test && cd - && bundle exec rspec" do
   require "guard/rspec/dsl"
   dsl = Guard::RSpec::Dsl.new(self)
 
