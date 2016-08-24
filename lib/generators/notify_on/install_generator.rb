@@ -21,5 +21,9 @@ module NotifyOn
       template "notify_on.rb", "config/initializers/notify_on.rb"
     end
 
+    def copy_bulk_config
+      template "notifications.yml", "config/notifications.yml"
+    end
+
   end
 end

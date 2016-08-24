@@ -10,5 +10,9 @@ module NotifyOn
       g.helper false
     end
 
+    config.after_initialize do
+      NotifyOn::BulkConfig.load
+    end
+
   end
 end
