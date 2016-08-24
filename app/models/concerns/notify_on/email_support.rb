@@ -1,42 +1,60 @@
 module NotifyOn
   module EmailSupport
-    extend ActiveSupport::Concern
-
-    included do
-      before_save :set_default_from
-    end
 
     def send_email!
-      return false unless options[:email] && can_send_email?
-      NotifyOn.configuration.mailer_class.constantize.notify(id, email_template)
-              .deliver_now
-    end
-
-    def can_send_email?
-      return false unless options[:email]
-      return true unless options[:email][:send_unless]
-      begin
-        !trigger.send(options[:email][:send_unless].to_s)
-      rescue
-        !send(options[:email][:send_unless].to_s)
-      end
+      return false unless can_send_email?
+      NotifyOn.configuration.mailer_class.constantize
+              .notify(id, email_template).deliver_now
     end
 
     def email_template
-      return false unless options[:email]
-      @email_template ||= options[:email][:template]
+      return nil unless email_config?
+      opts.email.template
+    end
+
+    def email_from
+      return NotifyOn.configuration.default_email if use_default_email?
+      return email_config.from if email_config? && email_config.from?
+      sender.email
+    end
+
+    def email_subject
+      return email_config.subject if email_config? && email_config.subject?
+      description
     end
 
     private
 
-      def set_default_from
-        return if options[:email].blank? || use_default_email?
-        self.use_default_email = if options[:email].respond_to?(:[])
-          options[:email][:default_from] ||
-          NotifyOn.configuration.use_default_email
-        else
-          NotifyOn.configuration.use_default_email
-        return
+      def email_config
+        opts.email
+      end
+
+      def email_enabled?
+        opts.email?
+      end
+
+      def email_disabled?
+        !email_enabled?
+      end
+
+      def email_config?
+        email_enabled? && email_config.respond_to?(:[])
+      end
+
+      def can_send_email?
+        return false if email_disabled?
+        return true unless email_config.send_unless.present?
+        begin
+          !trigger.send(email_config.send_unless.to_s)
+        rescue
+          !send(email_config.send_unless.to_s)
+        end
+      end
+
+      def use_default_email?
+        return opts.email.default_from if email_config? &&
+                                          !email_config.default_from.nil?
+        NotifyOn.configuration.use_default_email
       end
 
   end

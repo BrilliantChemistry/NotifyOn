@@ -1,6 +1,5 @@
 module NotifyOn
   module Helpers
-    extend ActiveSupport::Concern
 
     private
 

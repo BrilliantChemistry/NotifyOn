@@ -7,10 +7,8 @@ module NotifyOn
       @sender = @notification.sender
       @trigger = @notification.trigger
       mail :to => @recipient.email,
-           :from => (@sender.nil? || @notification.use_default_email?) ?
-                    NotifyOn.configuration.default_email :
-                    @sender.email,
-           :subject => @notification.description,
+           :from => @notification.email_from,
+           :subject => @notification.email_subject,
            :template_path => 'notifications',
            :template_name => template
     end

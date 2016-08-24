@@ -8,14 +8,11 @@ module NotifyOn
       attrs += "sender_type:string unread:boolean trigger_id:integer "
       attrs += "trigger_type:string description_raw:text "
       attrs += "description_cached:text link_raw:string link_cached:string "
-      attrs += "use_default_email:boolean options:text"
+      attrs += "options:text"
       generate "migration create_notify_on_notifications #{attrs}"
 
       gsub_file Dir.glob('db/migrate/*.rb').last, /t\.boolean\ \:unread/,
                 't.boolean :unread, :default => true'
-      gsub_file Dir.glob('db/migrate/*.rb').last,
-                /t\.boolean\ \:use_default_email/,
-                't.boolean :use_default_email, :default => false'
       gsub_file Dir.glob('db/migrate/*.rb').last, /t\.text\ \:options/,
                 "t.text :options\n      t.timestamps"
     end
