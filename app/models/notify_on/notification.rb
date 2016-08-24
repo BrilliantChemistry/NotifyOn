@@ -41,6 +41,11 @@ module NotifyOn
       description_cached || convert_string(description_raw)
     end
 
+    def method_missing(method_name, *args, &blk)
+      return Hashie::Mash.new(options) if method_name.to_s == 'opts'
+      super
+    end
+
     # ---------------------------------------- Private Methods
 
     private
