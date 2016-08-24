@@ -232,3 +232,17 @@ end
 ```
 
 If `private_or_stale?` returns `true`, your email **will not** be sent, but if it returns `false`, then the email will be sent.
+
+### Bulk Config
+
+Some apps and/or models require a substantial number of different types of notifications, some of which may require a high degree of customization or variation.
+
+Calling `notify_on` several times for unique notification types can be super annoying. NotifyOn offers a workaround in its _bulk config_ option.
+
+When you install NotifyOn, a file is created for you at `config/notifications.yml`. This YAML file is a way for you to configure your notifications without putting anything in your models.
+
+Read the instructions within this file for more information. In addition to that info, there are a few main points to remember.
+
+- Your bulk config is nearly identical to the config you'd enter in the model. The difference is that **you must specify an `action` as part of the options** instead of it being your first argument.
+- If you're using string interpolation, you must wrap the lines with quote marks or YAML tries to interpolate for us, and we don't want that. However, other instances where you would use quote marks (like the link helper), doesn't need them in the YAML, because they will be considered a string by default.
+- If you add/change/remove a notification, you must either restart your server or call `NotifyOn::BulkConfig.load`. But it's safest to just restart the server.
