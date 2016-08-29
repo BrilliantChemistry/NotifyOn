@@ -17,7 +17,7 @@ module NotifyOn
         notifications = []
 
         # "to" must be a method or attribute, and here we resolve it.
-        to = send(options[:to].to_s)
+        to = options[:to].to_s == 'self' ? self : send(options[:to].to_s)
 
         # Ensure "to" is an array so we can iterate over it, even if that's only
         # happening once.
