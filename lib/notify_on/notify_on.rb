@@ -10,8 +10,7 @@ class << ActiveRecord::Base
 
     attr_accessor :skip_notifications
 
-    case action.to_sym
-    when :create
+    if action.to_sym == :create
       method_name = "notify_#{options[:to]}_on_create"
       after_create(method_name.to_sym)
       define_method(method_name) { create_notify_on_notifications(options) }
@@ -21,7 +20,8 @@ class << ActiveRecord::Base
       method_name = "notify_#{options[:to]}_on_#{action_to_s}_when_#{when_to_s}"
       after_save(method_name.to_sym)
       define_method(method_name) do
-        return unless send(action) && send(options[:when])
+        return unless action.to_sym == :save || send(action)
+        return unless options[:when].present? && send(options[:when])
         create_notify_on_notifications(options)
       end
     end
