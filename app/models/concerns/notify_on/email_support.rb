@@ -3,8 +3,12 @@ module NotifyOn
 
     def send_email!
       return false unless can_send_email?
-      NotifyOn.configuration.mailer_class.constantize
-              .notify(id, email_template).deliver_now
+      message = NotifyOn.configuration.mailer_class.constantize
+                        .notify(id, email_template).deliver_now
+      if trigger.respond_to?(:message_id)
+        trigger.update_columns(:message_id => message.message_id)
+      end
+      message
     end
 
     def email_template
