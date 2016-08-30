@@ -2,10 +2,10 @@ class Message < ApplicationRecord
 
   # ---------------------------------------- Plugins
 
-  notify_on :create, :to => :user, :from => :author, :skip_if => :skip?,
+  notify_on :create, :to => :user, :from => :author, :if => :skip?,
             :message => '{author.email} sent you a message.',
             :link => 'message_path(:self)',
-            :email => { :template => 'new_message', :send_unless => :delayed? },
+            :email => { :template => 'new_message', :unless => :delayed? },
             :pusher => { :channel => "presence-message-{id}",
                          :event => 'new-message-{id}',
                          :data => { :is_chat => true } }
