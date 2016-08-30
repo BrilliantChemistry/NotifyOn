@@ -2,7 +2,7 @@ class << ActiveRecord::Base
 
   def notify_on(action, options = {})
 
-    include NotifyOn::Helpers
+    include NotifyOn::Creator
 
     has_many :notifications, -> { preloaded },
              :class_name => NotifyOn::Notification, :as => :trigger,
@@ -10,22 +10,22 @@ class << ActiveRecord::Base
 
     attr_accessor :skip_notifications
 
-    if action.to_sym == :create
-      method_name = "notify_#{options[:to]}_on_create"
-      after_create(method_name.to_sym)
-      define_method(method_name) { create_notify_on_notifications(options) }
-    else
-      action_to_s = action.to_s.gsub(/\?/, '')
-      when_to_s = options[:when].to_s.gsub(/\?/, '')
-      method_name = "notify_#{options[:to]}_on_#{action_to_s}_when_#{when_to_s}"
-      after_save(method_name.to_sym)
-      define_method(method_name) do
-        return unless action.to_sym == :save || send(action)
-        return unless options[:when].present? && send(options[:when])
-        create_notify_on_notifications(options)
-      end
+    method_to_s = NotifyOn::Utilities.callback_method_name(action, options)
+
+    send("after_#{(action.to_s == 'create') ? 'create' : 'save'}", method_to_s)
+
+    define_method(method_to_s) do
+      # The action trigger needs to be create, save, or a true condition.
+      return unless %w(create save).include?(action.to_s) || send(action.to_sym)
+      # An optional if condition must be missing or true.
+      return unless options[:if].blank? || send(options[:if])
+      # An optional unless condition must be missing or false.
+      return unless options[:unless].blank? || !send(options[:unless])
+      # Create the notification if we get past all our checks.
+      create_notify_on_notifications(options)
     end
 
-  end
+    private method_to_s.to_sym
 
+  end
 end

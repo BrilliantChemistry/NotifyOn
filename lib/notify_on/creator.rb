@@ -1,5 +1,5 @@
 module NotifyOn
-  module Helpers
+  module Creator
 
     private
 
