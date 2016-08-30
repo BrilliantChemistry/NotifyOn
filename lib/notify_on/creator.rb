@@ -8,10 +8,6 @@ module NotifyOn
         # skip_notifications disables all notifications for an instance.
         return if skip_notifications == true
 
-        # skip_if is an option passed via notify_on that can conditionally
-        # disable notifications for an instance.
-        return if options[:skip_if].present? && send(options[:skip_if]) == true
-
         # Collect notifications so we can return the set if we are creating more
         # than one (when "to" is an array or collection).
         notifications = []
