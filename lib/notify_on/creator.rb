@@ -15,21 +15,38 @@ module NotifyOn
         # "to" must be a method or attribute, and here we resolve it.
         to = options[:to].to_s == 'self' ? self : send(options[:to].to_s)
 
+        # We don't need a sender all the time, but we figure out who it is now
+        # so we can more easily work with the object.
+        sender = options[:from].blank? ? nil : send(options[:from].to_s)
+
         # Ensure "to" is an array so we can iterate over it, even if that's only
         # happening once.
         (to.is_a?(Array) ? to : [to]).each do |recipient|
 
-          # Notification is created with the basic information. Much of the
-          # advanced work happens within the model, which is why we store
-          # "options" in the record.
-          notification = NotifyOn::Notification.create!(
+          # If we have an update strategy, then we first need to look for an
+          # exiting notification.
+          notification = find_from_update_strategy(recipient, sender, options)
+
+          # Create a new notification if we didn't have an update strategy or
+          # couldn't find one. Much of the advanced work happens within the
+          # model, which is why we store "options" in the record.
+          notification = NotifyOn::Notification.new(
             :recipient => recipient,
-            :sender => options[:from].blank? ? nil : send(options[:from].to_s),
-            :trigger => self,
+            :sender => sender,
             :description_raw => options[:message],
-            :link_raw => options[:link],
             :options => options
+          ) if notification.nil?
+
+          # Update the shared attributes regardless of whether the notification
+          # is being created or updated.
+          notification.assign_attributes(
+            :unread => true,
+            :trigger => self,
+            :link_raw => options[:link]
           )
+
+          # Make sure we can save the notification.
+          notification.save!
 
           # Attempt to send the notification via Pusher, if requested.
           # -- NotifyOn::PusherSupport
@@ -45,6 +62,22 @@ module NotifyOn
 
         # Return the collection of notifications that we created.
         notifications
+      end
+
+      def find_from_update_strategy(to, from, options)
+        # Exit if we don't have a strategy, and currently we only support the
+        # :sender strategy.
+        return nil unless options[:update] && options[:update][:strategy] &&
+                          options[:update][:strategy] == :sender &&
+                          from.present?
+        if (scope = options[:update][:scope]).present?
+          to.notifications.from_with_type(from, self.class.name).recent
+            .includes(:trigger => [scope])
+            .select{ |n| n.trigger.send(scope) == self.send(scope)}[0]
+        else
+          to.notifications.from_with_type(from, self.class.name).recent
+            .limit(1)[0]
+        end
       end
 
   end

@@ -16,7 +16,7 @@ module NotifyOn
         notification_name.each do |name, notify_on_config|
           model_name.classify.constantize.class_eval do
             notify_on (notify_on_config['action'] || notify_on_config['when']),
-                      notify_on_config.symbolize_keys
+                      notify_on_config.deep_symbolize_keys
           end
         end
       end

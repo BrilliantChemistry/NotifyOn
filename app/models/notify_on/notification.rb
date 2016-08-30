@@ -21,7 +21,11 @@ module NotifyOn
 
     scope :preloaded, -> { includes(:recipient, :sender, :trigger) }
     scope :unread, -> { where(:unread => true) }
-    scope :recent, -> { order(:created_at => :desc) }
+    scope :recent, -> { order(:updated_at => :desc) }
+
+    scope :from_with_type, ->(from, type) {
+      where(:sender => from, :trigger_type => type)
+    }
 
     # ---------------------------------------- Callbacks
 
