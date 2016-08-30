@@ -21,6 +21,14 @@ NotifyOn.configure do |config|
   # custom functionality not supported in NotifyOn's NotificationMailer class.
   #
   # config.mailer_class = 'NotifyOn::NotificationMailer'
+  #
+  # NotifyOn's email notification service provides the option to use Active Job
+  # to send email messages in the background instead of during the request. If
+  # you enable Active Job, NotifyOn will use your application settings for
+  # Active Job. Learn more at
+  # http://guides.rubyonrails.org/active_job_basics.html
+  #
+  # config.deliver_mail = :now # or :later
 
   # ---------------------------------------- Pusher
 
