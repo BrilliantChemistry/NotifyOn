@@ -6,7 +6,11 @@ module NotifyOn
 
       def convert_string(input)
         (output = input.to_s).scan(/{[\w\_\.]+}/).each do |match|
-          result = match.gsub(/[^\w\_\.]/, '').split('.').inject(trigger, :send)
+          result = begin
+            match.gsub(/[^\w\_\.]/, '').split('.').inject(trigger, :send)
+          rescue
+            match.gsub(/[^\w\_\.]/, '').split('.').inject(self, :send)
+          end
           output = output.gsub(/#{match}/, result.to_s)
         end
         output.gsub(/\{:env}/, Rails.env.downcase)
