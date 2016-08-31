@@ -3,13 +3,9 @@ module NotifyOn
 
     def send_email!
       return false unless can_send_email?
-      timing = NotifyOn.configuration.deliver_mail.to_s
-      message = NotifyOn.configuration.mailer_class.constantize
-                        .notify(id, email_template).send("deliver_#{timing}")
-      if trigger.respond_to?(:message_id)
-        trigger.update_columns(:message_id => message.message_id)
-      end
-      message
+      NotifyOn.configuration.mailer_class.constantize
+              .notify(id, email_template)
+              .send("deliver_#{email_delivery_timing}")
     end
 
     def email_template
@@ -28,7 +24,16 @@ module NotifyOn
       description
     end
 
+    def should_save_email_id?
+      email_config? && email_config.save_id?
+    end
+
     private
+
+      def email_delivery_timing
+        return email_config.deliver if email_config? && email_config.deliver?
+        NotifyOn.configuration.deliver_mail.to_s
+      end
 
       def email_config
         opts.email
