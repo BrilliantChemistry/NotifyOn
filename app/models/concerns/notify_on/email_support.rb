@@ -51,11 +51,11 @@ module NotifyOn
 
       def can_send_email?
         return false if email_disabled?
-        return true unless email_config.unless.present?
+        return true unless email_config.unless?
         begin
-          !trigger.send(email_config.unless.to_s)
+          !trigger.send(email_config.unless)
         rescue
-          !send(email_config.unless.to_s)
+          !send(email_config.unless)
         end
       end
 
