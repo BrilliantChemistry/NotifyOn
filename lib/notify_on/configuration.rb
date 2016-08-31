@@ -9,13 +9,11 @@ module NotifyOn
       :mailer_class,
       :pusher_app_id,
       :pusher_key,
-      :pusher_secret,
-      :use_default_email
+      :pusher_secret
 
     def initialize
       @deliver_mail = :now
       @mailer_class = 'NotifyOn::NotificationMailer'
-      @use_default_email = false
     end
 
   end

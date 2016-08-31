@@ -14,9 +14,7 @@ module NotifyOn
     end
 
     def email_from
-      return NotifyOn.configuration.default_email if use_default_email?
-      return email_config.from if email_config? && email_config.from?
-      sender.email
+      convert_string(email_from_raw)
     end
 
     def email_subject
@@ -62,9 +60,12 @@ module NotifyOn
       end
 
       def use_default_email?
-        return opts.email.default_from if email_config? &&
-                                          !email_config.default_from.nil?
-        NotifyOn.configuration.use_default_email
+        email_disabled? || !email_config.from?
+      end
+
+      def email_from_raw
+        return NotifyOn.configuration.default_email if use_default_email?
+        email_config.from
       end
 
   end

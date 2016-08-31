@@ -11,11 +11,12 @@ NotifyOn.configure do |config|
   #
   # config.default_email = 'No Reply <noreply@yourdomain.com>'
   #
-  # By default, NotifyOn will use the "email" attribute of the specified "from"
-  # object. You can always default to the default email address you specified by
-  # uncommenting the line below.
+  # Note: You can use NotifyOn's string interpolation here. It will first
+  # attempt methods on the trigger, and then fallback to the notification.
+  # Therefore, you have access to the "sender" object, and could choose to
+  # default to the sender's email address, like so:
   #
-  # config.use_default_email = true
+  # config.default_email = '{sender.name} <{sender.email}>'
   #
   # You can also override the notification mailer class if you need to add
   # custom functionality not supported in NotifyOn's NotificationMailer class.
