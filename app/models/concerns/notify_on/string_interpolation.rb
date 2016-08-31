@@ -15,7 +15,9 @@ module NotifyOn
 
       def convert_link(input)
         input = input.split(/\(|\)|,/).map(&:strip)
-        return convert_string(input) unless input.is_a?(Array)
+        if %w(_path _url).select { |r| input[0].end_with?(r) }.blank?
+          return convert_string(input[0])
+        end
         args = []
         input[1..-1].each do |arg|
           args << if %w(self :self).include?(arg)
