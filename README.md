@@ -246,3 +246,13 @@ Read the instructions within this file for more information. In addition to that
 - Your bulk config is nearly identical to the config you'd enter in the model. The difference is that **you must specify an `action` as part of the options** instead of it being your first argument.
 - If you're using string interpolation, you must wrap the lines with quote marks or YAML tries to interpolate for us, and we don't want that. However, other instances where you would use quote marks (like the link helper), doesn't need them in the YAML, because they will be considered a string by default.
 - If you add/change/remove a notification, you must either restart your server or call `NotifyOn::BulkConfig.load`. But it's safest to just restart the server.
+
+### Mark A Collection As Read
+
+You can mark a group of notifications as read all at once using the recipient and trigger(s).
+
+Say we have a `@chat` object that has many `messages`, and we want to mark them all read for the `current_user`. We can do this:
+
+```ruby
+NotifyOn::Notification.mark_read_for(current_user, @chat.messages)
+```
