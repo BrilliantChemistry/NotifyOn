@@ -31,6 +31,13 @@ module NotifyOn
 
     after_save :convert_attrs
 
+    # ---------------------------------------- Class Methods
+
+    def self.mark_read_for(recipient, trigger)
+      where(:recipient => recipient, :trigger => trigger)
+        .update_all(:unread => false)
+    end
+
     # ---------------------------------------- Instance Methods
 
     def read!
