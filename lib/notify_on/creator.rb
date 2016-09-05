@@ -48,9 +48,10 @@ module NotifyOn
           # Make sure we can save the notification.
           notification.save!
 
-          # Attempt to send the notification via Pusher, if requested.
+          # Attempt to send the notification via Pusher. There are catches in
+          # place to prevent it from being pushed if disabled.
           # -- NotifyOn::PusherSupport
-          notification.push! if options[:pusher].present?
+          notification.push!
 
           # Send the notification via email, if requested.
           # -- NotifyOn::EmailSupport

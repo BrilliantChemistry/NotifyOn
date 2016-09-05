@@ -3,7 +3,7 @@ module NotifyOn
     extend ActiveSupport::Concern
 
     def push!
-      return false unless options[:pusher].present?
+      return false unless can_push?
 
       pusher_config
 
@@ -27,21 +27,21 @@ module NotifyOn
     end
 
     def pusher_channel_name
-      return nil unless options[:pusher].present?
+      return nil unless can_push?
       channel = options[:pusher][:channel] if options[:pusher].respond_to?(:[])
       channel = NotifyOn.configuration.default_pusher_channel if channel.blank?
       @pusher_channel_name ||= convert_string(channel)
     end
 
     def pusher_event_name
-      return nil unless options[:pusher].present?
+      return nil unless can_push?
       event = options[:pusher][:event] if options[:pusher].respond_to?(:[])
       event = NotifyOn.configuration.default_pusher_event if event.blank?
       @pusher_event_name ||= convert_string(event)
     end
 
     def pusher_attrs
-      return nil unless options[:pusher].present?
+      return nil unless can_push?
       {
         :notification => self.to_json,
         :trigger => trigger.to_json,
@@ -55,6 +55,11 @@ module NotifyOn
         Pusher.app_id = NotifyOn.configuration.pusher_app_id
         Pusher.key    = NotifyOn.configuration.pusher_key
         Pusher.secret = NotifyOn.configuration.pusher_secret
+      end
+
+      def can_push?
+        options[:pusher].present? ||
+        (options[:pusher].nil? && NotifyOn.configuration.use_pusher_by_default)
       end
 
   end

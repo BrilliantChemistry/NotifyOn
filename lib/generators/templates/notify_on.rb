@@ -55,5 +55,10 @@ NotifyOn.configure do |config|
   #
   # config.default_pusher_channel = 'presence_{:env}_notification_{:recipient_id}'
   # config.default_pusher_event = 'new_notification'
+  #
+  # You can use Pusher by default (which requires the channel and event be set
+  # above). Uncomment the following setting to do so.
+  #
+  # config.use_pusher_by_default = true
 
 end
