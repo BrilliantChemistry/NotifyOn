@@ -8,7 +8,7 @@ module NotifyOn
         (output = input.to_s).scan(/{[\w\_\.]+}/).each do |match|
           result = begin
             match.gsub(/[^\w\_\.]/, '').split('.').inject(trigger, :send)
-          rescue
+          rescue NoMethodError => e
             match.gsub(/[^\w\_\.]/, '').split('.').inject(self, :send)
           end
           output = output.gsub(/#{match}/, result.to_s)
