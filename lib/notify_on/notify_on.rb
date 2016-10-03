@@ -4,9 +4,13 @@ class << ActiveRecord::Base
 
     include NotifyOn::Creator
 
-    has_many :notifications, -> { preloaded },
-             :class_name => NotifyOn::Notification, :as => :trigger,
-             :dependent => :destroy
+    ([self] + self.descendants).each do |klass|
+      klass.class_eval do
+        has_many :notifications, -> { preloaded },
+                 :class_name => NotifyOn::Notification, :as => :trigger,
+                 :dependent => :destroy
+      end
+    end
 
     attr_accessor :skip_notifications
 

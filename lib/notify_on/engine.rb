@@ -11,6 +11,7 @@ module NotifyOn
     end
 
     config.after_initialize do
+      Rails.application.eager_load!
       NotifyOn::BulkConfig.load
     end
 

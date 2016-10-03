@@ -17,6 +17,18 @@ module NotifyOn
     belongs_to :sender, :polymorphic => true
     belongs_to :trigger, :polymorphic => true
 
+    def recipient_type=(sType)
+      super(sType.to_s.classify.constantize.base_class.to_s)
+    end
+
+    def sender_type=(sType)
+      super(sType.to_s.classify.constantize.base_class.to_s)
+    end
+
+    def trigger_type=(sType)
+      super(sType.to_s.classify.constantize.base_class.to_s)
+    end
+
     # ---------------------------------------- Scopes
 
     scope :preloaded, -> { includes(:recipient, :sender, :trigger) }
