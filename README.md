@@ -1,4 +1,4 @@
-NotifyOn
+NotifyOn ![Overhaul Build Status](https://travis-ci.org/digerata/NotifyOn.svg?branch=overhaul)
 ==========
 
 **This branch represents the bleeding edge. It is not production-ready.**
