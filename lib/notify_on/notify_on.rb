@@ -15,8 +15,9 @@ class << ActiveRecord::Base
     attr_accessor :skip_notifications
 
     method_to_s = NotifyOn::Utilities.callback_method_name(action, options)
+    method_sym = method_to_s.to_sym
 
-    send("after_#{(action.to_s == 'create') ? 'create' : 'save'}", method_to_s)
+    send("after_#{(action.to_s == 'create') ? 'create' : 'save'}", method_sym)
 
     define_method(method_to_s) do
       # The action trigger needs to be create, save, or a true condition.
