@@ -8,7 +8,7 @@ module GeneralHelpers
     NotifyOn::Notification.first
   end
 
-  def total_emails
+  def email_count
     ActionMailer::Base.deliveries.count
   end
 

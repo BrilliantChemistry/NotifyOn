@@ -11,10 +11,25 @@ NotifyOn.configure do |config|
   #
   # config.default_email = 'No Reply <noreply@yourdomain.com>'
   #
+  # Note: You can use NotifyOn's string interpolation here. It will first
+  # attempt methods on the trigger, and then fallback to the notification.
+  # Therefore, you have access to the "sender" object, and could choose to
+  # default to the sender's email address, like so:
+  #
+  config.default_email = 'NotifyOn <noreply@example.com>'
+  #
   # You can also override the notification mailer class if you need to add
   # custom functionality not supported in NotifyOn's NotificationMailer class.
   #
   # config.mailer_class = 'NotifyOn::NotificationMailer'
+  #
+  # NotifyOn's email notification service provides the option to use Active Job
+  # to send email messages in the background instead of during the request. If
+  # you enable Active Job, NotifyOn will use your application settings for
+  # Active Job. Learn more at
+  # http://guides.rubyonrails.org/active_job_basics.html
+  #
+  # config.deliver_mail = :now # or :later
 
   # ---------------------------------------- Pusher
 
@@ -33,5 +48,17 @@ NotifyOn.configure do |config|
   # config.pusher_app_id = Rails.application.secrets.pusher_app_id
   # config.pusher_key = Rails.application.secrets.pusher_key
   # config.pusher_secret = Rails.application.secrets.pusher_secret
+  #
+  # While you can configure your Pusher event in each "notify_on" call, you can
+  # also set your default configuration so you don't have to restate it for
+  # every notification.
+  #
+  # config.default_pusher_channel = 'presence_{:env}_notification_{:recipient_id}'
+  # config.default_pusher_event = 'new_notification'
+  #
+  # You can use Pusher by default (which requires the channel and event be set
+  # above). Uncomment the following setting to do so.
+  #
+  # config.use_pusher_by_default = true
 
 end

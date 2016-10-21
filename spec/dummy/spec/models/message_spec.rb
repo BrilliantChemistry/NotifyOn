@@ -4,25 +4,52 @@ RSpec.describe Message, :type => :model do
 
   let(:message) { create(:message) }
 
-  it 'has a valid factory' do
-    expect(message).to be_valid
-  end
-
-  describe '#notify_on' do
-    it 'creates a notification from author to sender on create' do
-      [notification_count, total_emails].each { |n| expect(n).to eq(0) }
-      message
-      [notification_count, total_emails].each { |n| expect(n).to eq(1) }
-      expect(first_notification.recipient).to eq(message.user)
-      expect(first_notification.sender).to eq(message.author)
-      expect(first_notification.description)
-        .to eq("#{message.author.email} sent you a message.")
+  context 'creates a notification that' do
+    before(:each) do
+      @message = message
+      @notification = first_notification
     end
-    it 'deletes its notifications when it is deleted' do
-      message
-      expect(message.notifications.count).to eq(1)
+    it 'is the only notification' do
+      [notification_count, email_count].each { |n| expect(n).to eq(1) }
+    end
+    it 'gets deleted when it is deleted' do
       message.destroy
       expect(notification_count).to eq(0)
+    end
+    it 'can be skipped by using "skip_notifications"' do
+      expect { create(:message, :skip_notifications => true) }
+        .to change { notification_count }.by(0)
+    end
+    it 'is to the message "user"' do
+      expect(@notification.recipient).to eq(message.user)
+    end
+    it 'is from the message author' do
+      expect(@notification.sender).to eq(message.author)
+    end
+    it 'interpolates a description' do
+      msg = "#{message.author.email} sent you a message."
+      expect(@notification.description).to eq(msg)
+    end
+    it 'interpolates the link' do
+      expect(@notification.link).to eq("/messages/#{@message.id}")
+    end
+    context 'sends an email that' do
+      before(:each) { @email = emails[0] }
+      it 'is sent from the default address' do
+        # This is set in the initializer.
+        expect(@email.from).to eq(['noreply@example.com'])
+      end
+      it 'is sent to the notification recipient' do
+        expect(@email.to).to eq([@notification.recipient.email])
+      end
+      it 'has a fallback subject that matches the description' do
+        subject = "#{message.author.email} sent you a message."
+        expect(@email.subject).to eq(subject)
+      end
+      it 'uses the default template' do
+        expect(@email.body.encoded).to include('You have a new notification:')
+        expect(@email.body.encoded).to include(@notification.description)
+      end
     end
   end
 

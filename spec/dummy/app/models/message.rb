@@ -2,13 +2,14 @@ class Message < ApplicationRecord
 
   # ---------------------------------------- Plugins
 
-  notify_on :create, :to => :user, :from => :author, :if => :skip?,
+  # Test that the basics work with the model config. All other features and
+  # variations are tested using the bulk config.
+  notify_on :create,
+            :to => :user,
+            :from => :author,
             :message => '{author.email} sent you a message.',
             :link => 'message_path(:self)',
-            :email => { :template => 'new_message', :unless => :delayed? },
-            :pusher => { :channel => "presence-message-{id}",
-                         :event => 'new-message-{id}',
-                         :data => { :is_chat => true } }
+            :email => true
 
   # ---------------------------------------- Attributes
 

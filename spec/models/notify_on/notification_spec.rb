@@ -3,96 +3,82 @@ require 'rails_helper'
 module NotifyOn
   RSpec.describe Notification, :type => :model do
 
-    context 'skipped from a message' do
-      it 'will not create a notification if "skip_notifications" is false' do
-        message = create(:message, :skip_notifications => true)
-        expect(NotifyOn::Notification.count).to eq(0)
+    before(:each) do
+      @message = create(:message)
+      @n = first_notification
+    end
+
+    describe 'self#mark_read_for, self#unread' do
+      it 'will mark read by a single recipient and trigger' do
+        NotifyOn::Notification.mark_read_for(@message.user, @message)
+        expect(@n.reload.unread?).to eq(false)
       end
-      it 'will not create a notification if skip_if response is true' do
-        msg = create(:message, :content => "[SKIP] #{Faker::Lorem.paragraph}")
-        expect(NotifyOn::Notification.count).to eq(0)
+      it 'will mark read those matching an array of recipients and triggers' do
+        Message.destroy_all
+        messages = create_list(:message, 10)
+        read_msgs = messages.first(5)
+        unread_msgs = messages - read_msgs
+        recipients = read_msgs.collect(&:user)
+        NotifyOn::Notification.mark_read_for(recipients, read_msgs)
+        read_msgs.each { |m| expect(m.notifications[0].unread?).to eq(false) }
+        unread_msgs.each { |m| expect(m.notifications[0].unread?).to eq(true) }
+        unread = unread_msgs.collect(&:notifications).flatten
+        expect(NotifyOn::Notification.unread.to_a).to match_array(unread)
       end
     end
 
-    context 'created from a message' do
-
-      before(:each) do
-        @message = create(:message)
-        @notification = NotifyOn::Notification.first
+    describe '#read?, #read!' do
+      it 'sets unread to false' do
+        expect(@n.unread?).to eq(true)
+        expect(@n.read?).to eq(false)
+        @n.read!
+        expect(@n.reload.unread?).to eq(false)
+        expect(@n.read?).to eq(true)
       end
-
-      describe '#read!' do
-        it 'sets unread to false' do
-          expect(@notification.unread?).to eq(true)
-          @notification.read!
-          expect(@notification.reload.unread?).to eq(false)
-        end
-      end
-
-      describe '#link' do
-        it 'resolves and caches its link and returns the cached version' do
-          expect(@notification.link_cached).to eq("/messages/#{@message.id}")
-          expect(@notification.link).to eq(@notification.link_cached)
-        end
-      end
-
-      describe '#description' do
-        it 'resolves and caches its description and returns the cached version' do
-          expect(@notification.description_cached)
-            .to eq("#{@message.author.email} sent you a message.")
-          expect(@notification.description)
-            .to eq(@notification.description_cached)
-        end
-      end
-
-      # ---------------------------------------- Pusher
-
-      describe '#pusher_channel_name' do
-        it 'interpolates the id' do
-          expect(@notification.pusher_channel_name)
-            .to eq("presence-message-#{@message.id}")
-        end
-      end
-
-      describe '#pusher_event_name' do
-        it 'interpolates the id' do
-          expect(@notification.pusher_event_name)
-            .to eq("new-message-#{@message.id}")
-        end
-      end
-
-      describe '#pusher_attrs' do
-        it 'contains the notification, trigger, and optional data' do
-          attrs = @notification.pusher_attrs
-          expect(attrs[:notification]).to eq(@notification.to_json)
-          expect(attrs[:trigger]).to eq(@message.to_json)
-          expect(attrs[:data]).to eq({ :is_chat => true })
-        end
-      end
-
-      # ---------------------------------------- Email
-
-      describe '#email_template' do
-        it 'returns the name of the specified template' do
-          expect(@notification.email_template).to eq('new_message')
-        end
-      end
-
-      describe '#set_default_from' do
-        it 'sets "use_default_email" automatically when not set' do
-          expect(@notification.use_default_email).to eq(false)
-        end
-      end
-
-      describe '#can_send_email?' do
-        it 'will use a method on the trigger to conditionally send email' do
-          expect(@notification.can_send_email?).to eq(true)
-          @message.update_columns(:content => "[DELAYED] #{@message.content}")
-          @notification.trigger.reload
-          expect(@notification.can_send_email?).to eq(false)
-        end
-      end
-
     end
+
+    describe '#link' do
+      it 'caches an interpolated link and returns it' do
+        expect(@n.link_cached).to eq("/messages/#{@message.id}")
+        expect(@n.link).to eq(@n.link_cached)
+      end
+      it 'falls back to converting the raw link when not cached' do
+        @n.update_columns(:link_cached => nil)
+        expect(@n.reload.link_cached).to eq(nil)
+        expect(@n.link).to eq("/messages/#{@message.id}")
+      end
+      it 'returns nil when both raw and cached are missing' do
+        @n.update_columns(:link_cached => nil, :link_raw => nil)
+        expect(@n.reload.link).to eq(nil)
+      end
+    end
+
+    describe '#description' do
+      before(:each) { @desc = "#{@message.author.email} sent you a message." }
+      it 'caches an interpolated description and returns it' do
+        expect(@n.description_cached).to eq(@desc)
+        expect(@n.description).to eq(@n.description_cached)
+      end
+      it 'falls back to converting the raw description when not cached' do
+        @n.update_columns(:description_cached => nil)
+        expect(@n.reload.description_cached).to eq(nil)
+        expect(@n.description).to eq(@desc)
+      end
+      it 'returns nil when both raw and cached are missing' do
+        @n.update_columns(:description_cached => nil, :description_raw => nil)
+        expect(@n.reload.description).to eq(nil)
+      end
+    end
+
+    describe '#opts' do
+      it 'uses method_missing to convert "options" to Hashie::Mash' do
+        expect(@n.opts).to eq(Hashie::Mash.new(@n.options))
+      end
+      it 'returns a blank Mash when options is nil' do
+        @n.update_columns(:options => nil)
+        expect(@n.opts).to eq(Hashie::Mash.new)
+      end
+    end
+
   end
 end

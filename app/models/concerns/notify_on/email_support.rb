@@ -10,7 +10,7 @@ module NotifyOn
 
     def email_template
       return nil unless email_config?
-      opts.email.template
+      email_config.template || 'notify'
     end
 
     def email_from
@@ -34,7 +34,8 @@ module NotifyOn
       end
 
       def email_config
-        opts.email
+        return nil unless opts.email
+        opts.email.is_a?(Hashie::Mash) ? opts.email : Hashie::Mash.new
       end
 
       def email_enabled?

@@ -56,6 +56,10 @@ module NotifyOn
       update_columns(:unread => false)
     end
 
+    def read?
+      !unread?
+    end
+
     def link
       link_cached || convert_link(link_raw)
     end

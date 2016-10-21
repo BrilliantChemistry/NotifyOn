@@ -5,6 +5,7 @@ module NotifyOn
     private
 
       def convert_string(input)
+        return nil if input.blank?
         (output = input.to_s).scan(/{[\w\_\.]+}/).each do |match|
           result = begin
             match.gsub(/[^\w\_\.]/, '').split('.').inject(trigger, :send)
@@ -18,6 +19,7 @@ module NotifyOn
       end
 
       def convert_link(input)
+        return nil if input.blank?
         input = input.split(/\(|\)|,/).map(&:strip)
         if %w(_path _url).select { |r| input[0].end_with?(r) }.blank?
           return convert_string(input[0])
