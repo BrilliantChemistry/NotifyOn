@@ -2,6 +2,16 @@ require 'rails_helper'
 
 describe NotifyOn::Configuration do
 
+  # Reset the configuration to what the app was using after each spec here.
+  after(:each) do
+    NotifyOn.configure do |config|
+      config.default_email = 'NotifyOn <noreply@example.com>'
+      config.pusher_app_id = 'my_app_id'
+      config.pusher_key = 'my_key'
+      config.pusher_secret = 'my_secret'
+    end
+  end
+
   it 'sets the expected defaults' do
     NotifyOn.reset
     config = NotifyOn.configuration

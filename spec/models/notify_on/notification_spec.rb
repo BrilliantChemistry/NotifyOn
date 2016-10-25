@@ -146,6 +146,7 @@ module NotifyOn
       context 'can not push' do
         describe '#can_push?' do
           it 'returns false' do
+            NotifyOn.configure { |config| config.use_pusher_by_default = false }
             expect(n.send(:can_push?)).to eq(false)
           end
           it 'would return true if we change the default config' do
