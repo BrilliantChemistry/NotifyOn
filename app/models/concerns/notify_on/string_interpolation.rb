@@ -6,11 +6,11 @@ module NotifyOn
 
       def convert_string(input)
         return nil if input.blank?
-        (output = input.to_s).scan(/{[\w\_\.]+}/).each do |match|
+        (output = input.to_s).scan(/{[\w\_\.\?]+}/).each do |match|
           result = begin
-            match.gsub(/[^\w\_\.]/, '').split('.').inject(trigger, :send)
+            match.gsub(/[^\w\_\.\?]/, '').split('.').inject(trigger, :send)
           rescue NoMethodError => e
-            match.gsub(/[^\w\_\.]/, '').split('.').inject(self, :send)
+            match.gsub(/[^\w\_\.\?]/, '').split('.').inject(self, :send)
           end
           output = output.gsub(/#{match}/, result.to_s)
         end

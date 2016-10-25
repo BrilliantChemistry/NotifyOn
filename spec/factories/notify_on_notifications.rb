@@ -1,9 +1,10 @@
 FactoryGirl.define do
-  factory :notify_on_notification, class: 'NotifyOn::Notification' do
-    recipient_id 1
-    sender_id 1
-    unread false
-    trigger_id 1
-    trigger_type "MyString"
+  factory :notification, :class => 'NotifyOn::Notification' do
+    recipient { create(:user) }
+    sender { create(:user) }
+    trigger { create(:message) }
+    trait :read do
+      unread { false }
+    end
   end
 end
