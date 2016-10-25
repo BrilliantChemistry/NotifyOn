@@ -1,0 +1,8 @@
+post:
+
+  published:
+    when: :state_changed?
+    if: :published?
+    to: :author
+    link: post_path(:self)
+    message: Your post has been published.

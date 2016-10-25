@@ -6,6 +6,6 @@ class Post < ApplicationRecord
 
   # ---------------------------------------- Attributes
 
-  enum :state => { :draft => 0, :published => 1 }
+  enum :state => { :draft => 0, :pending => 1, :published => 2 }
 
 end
