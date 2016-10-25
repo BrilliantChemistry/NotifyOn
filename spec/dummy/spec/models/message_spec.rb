@@ -33,6 +33,10 @@ RSpec.describe Message, :type => :model do
     it 'interpolates the link' do
       expect(@notification.link).to eq("/messages/#{@message.id}")
     end
+    it 'is accessible via an association' do
+      expect(@message.respond_to?(:notifications)).to eq(true)
+      expect(@message.notifications.to_a).to match_array([@notification])
+    end
     context 'sends an email that' do
       before(:each) { @email = emails[0] }
       it 'is sent from the default address' do
