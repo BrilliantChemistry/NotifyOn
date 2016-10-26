@@ -1,6 +1,8 @@
 NotifyOn
 ==========
 
+![](https://api.travis-ci.org/BrilliantChemistry/NotifyOn.svg?branch=overhaul)
+
 NotifyOn generates automatic notifications as a result of state changes on a
 particular model in a Rails application. It supports email messages, along with
 third-party real-time delivery, while also storing each notification in your
