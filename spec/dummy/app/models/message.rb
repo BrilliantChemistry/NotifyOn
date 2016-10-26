@@ -34,4 +34,12 @@ class Message < ApplicationRecord
     content.start_with?('[SKIP]')
   end
 
+  def pdf_filename
+    'myfile.pdf'
+  end
+
+  def pdf_file
+    @pdf_file ||= open('http://loremflickr.com/200/200')
+  end
+
 end

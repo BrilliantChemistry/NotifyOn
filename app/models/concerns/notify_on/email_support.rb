@@ -4,7 +4,7 @@ module NotifyOn
     def send_email!
       return false unless can_send_email?
       NotifyOn.configuration.mailer_class.constantize
-              .notify(id, email_template)
+              .notify(id, email_template, email_attachments)
               .send("deliver_#{email_delivery_timing}")
     end
 
@@ -24,6 +24,25 @@ module NotifyOn
 
     def should_save_email_id?
       email_config? && email_config.save_id?
+    end
+
+    def email_attachments
+      return [] unless email_config? && email_config.attachments?
+      attachments = []
+      email_config.attachments.each do |name, renderer|
+        filename = begin
+          trigger.send(name)
+        rescue => e
+          name
+        end
+        file = begin
+          trigger.send(renderer)
+        rescue => e
+          raise "Could not create file: #{filename}\n#{e}"
+        end
+        attachments << { :name => filename, :file => file }
+      end
+      attachments
     end
 
     private

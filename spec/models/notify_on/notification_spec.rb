@@ -313,6 +313,22 @@ module NotifyOn
           expect(n.email_subject).to eq(subj)
         end
       end
+
+      describe '#email_attachments' do
+        it 'resolves the calls to methods on the trigger' do
+          update_email_config(:attachments => { :pdf_filename => :pdf_file })
+          attachment = { :name => 'myfile.pdf', :file => n.trigger.pdf_file }
+          expect(n.email_attachments).to match_array([attachment])
+        end
+        it 'throws an error when the file method does not exist' do
+          update_email_config(:attachments => { :pdf_filename => :wrong! })
+          expect { n.email_attachments }.to raise_error(RuntimeError)
+        end
+        it 'falls back to a string when the filename method does not exist' do
+          update_email_config(:attachments => { :wrong => :pdf_file })
+          expect(n.email_attachments[0][:name]).to eq('wrong')
+        end
+      end
     end
 
   end

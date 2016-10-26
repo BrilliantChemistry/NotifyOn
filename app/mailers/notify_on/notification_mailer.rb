@@ -1,11 +1,13 @@
 module NotifyOn
   class NotificationMailer < ApplicationMailer
 
-    def notify(notification_id, template = 'notify')
+    def notify(notification_id, template = 'notify', files = [])
       @notification = NotifyOn::Notification.find_by_id(notification_id)
       @recipient = @notification.recipient
       @sender = @notification.sender
       @trigger = @notification.trigger
+      # Add attachments.
+      files.each { |attr| attachments[attr[:name]] = attr[:file] }
       # Save a reference to the message if requested.
       if @notification.should_save_email_id?
         headers['message-id'] = (message_id = SecureRandom.uuid)
