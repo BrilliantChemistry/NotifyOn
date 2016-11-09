@@ -27,16 +27,21 @@ module NotifyOn
     end
 
     def email_attachments
-      return [] unless email_config? && email_config.attachments?
       attachments = []
+      return attachments unless email_config? && email_config.attachments?
       email_config.attachments.each do |name, renderer|
+        next unless trigger.send(renderer.if) if renderer.try(:if?)
         filename = begin
           trigger.send(name)
         rescue => e
           name
         end
-        file = begin
-          trigger.send(renderer)
+        begin
+          file = if renderer.is_a?(Symbol)
+            trigger.send(renderer)
+          else
+            trigger.send(renderer.file)
+          end
         rescue => e
           raise "Could not create file: #{filename}\n#{e}"
         end
