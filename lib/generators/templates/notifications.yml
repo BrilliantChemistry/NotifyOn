@@ -1,0 +1,19 @@
+# This is the file that lets you configure notifications in bulk, instead of
+# using individual "notify_on" calls within your models.
+#
+# Do so by first specifying the underscored class name, and give each
+# notification a name. For example:
+#
+# message:
+#   message_sent:
+#     when: :save
+#     if: :active?
+#     unless: :from_unless?
+#     to: :user
+#     from: :author
+#     message: '{author.first_name} has sent you a message.'
+#     link: chat_path(:chat)
+#     email:
+#       template: new_message
+#       unless:  :pusher_recipient_active?
+#

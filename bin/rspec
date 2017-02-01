@@ -1,0 +1,3 @@
+#!/bin/bash
+
+cd spec/dummy && bin/rails db:environment:set RAILS_ENV=test && cd - && bundle exec rspec

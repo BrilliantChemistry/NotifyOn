@@ -1,0 +1,20 @@
+post:
+
+  published:
+    when: :state_changed?
+    if: :published?
+    to: :author
+    link: post_path(:self)
+    message: Your post has been published.
+
+comment:
+
+  new:
+    when: :create
+    to: :post_author
+    from: :user
+    link: post_path(:post)
+    message: '{user.to_s} left a new comment on your post.'
+    update:
+      strategy: :sender
+      scope: :post

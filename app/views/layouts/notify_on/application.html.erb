@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Notify on</title>
+  <%= stylesheet_link_tag    "notify_on/application", media: "all" %>
+  <%= javascript_include_tag "notify_on/application" %>
+  <%= csrf_meta_tags %>
+</head>
+<body>
+
+<p class="notice"><%= notice %></p>
+<p class="alert"><%= alert %></p>
+
+<%= yield %>
+
+</body>
+</html>
