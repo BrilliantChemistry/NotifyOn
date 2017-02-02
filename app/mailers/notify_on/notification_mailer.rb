@@ -1,6 +1,8 @@
 module NotifyOn
   class NotificationMailer < ApplicationMailer
 
+    helper 'notify_on/mailer'
+
     def notify(notification_id, template = 'notify', files = [])
       @notification = NotifyOn::Notification.find_by_id(notification_id)
       @recipient = @notification.recipient
