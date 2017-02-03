@@ -21,7 +21,7 @@ module NotifyOn
 
         # Ensure "to" is an array so we can iterate over it, even if that's only
         # happening once.
-        (to.is_a?(Array) ? to : [to]).each do |recipient|
+        (to.respond_to?(:each) ? to : [to]).each do |recipient|
 
           # If we have an update strategy, then we first need to look for an
           # exiting notification.
