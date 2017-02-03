@@ -17,17 +17,11 @@ class << ActiveRecord::Base
     method_to_s = NotifyOn::Utilities.callback_method_name(action, options)
     method_sym = method_to_s.to_sym
 
-    if action.to_s == 'create'
-      send('after_create', method_sym)
-    elsif action.to_s == 'update'
-      send('after_update', method_sym)
-    else
-      send('after_save', method_sym)
-    end
+    send("after_#{(action.to_s == 'create') ? 'create' : 'update'}", method_sym)
 
     define_method(method_to_s) do
       # The action trigger needs to be create, save, or a true condition.
-      return unless %w(create update save).include?(action.to_s) || send(action.to_sym)
+      return unless %w(create update).include?(action.to_s) || send(action.to_sym)
       # An optional if condition must be missing or true.
       return unless options[:if].blank? || send(options[:if])
       # An optional unless condition must be missing or false.
