@@ -10,8 +10,7 @@ database so you can use, adjust, and display as you'd wish.
 
 Documentation can be found in [the wiki
 library](https://github.com/digerata/NotifyOn/wiki). A good place to start is
-[this article](https://github.com/BrilliantChemistry/NotifyOn/wiki/Getting-
-Started).
+[this article](https://github.com/BrilliantChemistry/NotifyOn/wiki/Getting-Started).
 
 If you have questions, comments, ideas, or bug reports, please [create an
 issue](https://github.com/BrilliantChemistry/NotifyOn/issues/new).
@@ -27,5 +26,4 @@ Chemistry](http://www.brilliantchemistry.com/).
 License
 ----------
 
-See [MIT-LICENSE](https://github.com/BrilliantChemistry/NotifyOn/blob/master
-/MIT-LICENSE)
+See [MIT-LICENSE](https://github.com/BrilliantChemistry/NotifyOn/blob/master/MIT-LICENSE)
