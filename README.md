@@ -167,7 +167,7 @@ config.default_pusher_event = 'new_notification'
 config.use_pusher_by_default = true
 ```
 
-*Setup Your UI (Notification List)*
+## Setup Your UI (Notification List)
 
 This part is very application specific.
 
@@ -368,7 +368,7 @@ View for rendering list of notifications in menu:
 
 (There is an assumption here about having an `avatar` property for the user's image.)
 
-*Setup Your UI (Single Red Dot)*
+## Setup Your UI (Single Red Dot)
 
 This part is very application specific.
 
