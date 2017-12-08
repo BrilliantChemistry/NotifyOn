@@ -67,7 +67,7 @@ Set what model is receiving notifications (E.g., the user...)
 
 `user.rb`
 
-```
+```ruby
 class User < ApplicationRecord
 
   receives_notifications
@@ -79,7 +79,7 @@ Add to your model the `notify_on` config:
 
 `chat.rb`
 
-```
+```ruby
 notify_on :create, { to: :other_users, message: ‘{sender.first_name} sent you a message.’, email: { template: 'new_message’ } }
 
 def other_users
@@ -97,7 +97,7 @@ Add your corresponding mailer view:
 `app/views/notifications/new_message.html.erb`
 
 (Notice the partials for a shared header and footer. The model object that triggered the notification is passed in as @trigger.)
-```
+```erb
 <% @message = @trigger %>
 <%= render partial: "shared/mail/header" %>
 
@@ -137,7 +137,7 @@ Lastly, configure pusher.io so that if a user is logged in, they'll get a push n
 
 Verify settings in `config/intializers/notify_on.rb`:
 
-```
+```ruby
 # Pusher enables you to send notifications in real-time. Learn more about
 # Pusher at https://pusher.com. If you are going to use Pusher, you need to
 # include the following values:
@@ -179,13 +179,13 @@ Again this is very UI specific, but here is code and instructions to help.
 
 1. Communicate to the UI what channel to listen to for notifications.
 
-```
+```erb
 <body data-notifications="<%= "presence-#{Rails.env.to_s.downcase}-notification-#{current_user.id}" if user_signed_in? %>"
 ```
 
 2. Setup notifications if we are logged in:
 
-```
+```erb
 <% if user_signed_in? %>
 	<script>
 		$(document).on('ready', function(){
@@ -204,7 +204,7 @@ for the new dropdown menu list. It will also update the number of notifications 
 
 `notifications.js.erb`
 
-```
+```javascript
 function initRealTimeNotifications() {
 	if(notifications.pusher == null) {
 		notifications.pusher = new Pusher('<%= Rails.application.secrets.pusher_key %>', {
@@ -272,7 +272,7 @@ This handles three things (three routes):
 2. Handle redirecting someone who views a notification. At the same time, marking the notification as read when viewing it.
 3. Marking all notifications as unread.
 
-```
+```ruby
 class NotificationsController < ApplicationController
 
 	def index
@@ -308,7 +308,7 @@ end
 
 Set your routes:
 
-```
+```ruby
 	get 'notifications/markread', :as => 'markread_notifications'
 	get '/notifications' => "notifications#index", :as => :notifications
 	get '/notifications/:id' => "notifications#show", :as => :notification
@@ -319,14 +319,14 @@ View for rendering list of notifications in menu:
 
 `views/notifications/index.html`
 
-```
+```erb
 <div id="notifications-list" data-unread="<%= current_user.notifications.unread.count %>">
 	<%= render 'list' %>
 </div>
 ```
 
 `views/notifications/_list.html`
-```
+```erb
 <ul class='notification-list'>
 	<% if current_user %>
 		<%= content_tag(:li, 'No Notifications') unless has_notifications? %>
@@ -371,13 +371,13 @@ Again this is very UI specific, but here is code and instructions to help.
 
 1. Communicate to the UI what channel to listen to for notifications.
 
-```
+```erb
 <body data-notifications="<%= "presence-#{Rails.env.to_s.downcase}-notification-#{current_user.id}" if user_signed_in? %>"
 ```
 
 2. Setup notifications if we are logged in:
 
-```
+```erb
 <% if user_signed_in? %>
 	<script>
 		$(document).on('ready', function(){
@@ -396,7 +396,7 @@ for the new dropdown menu list. It will also update the number of notifications 
 
 `notifications.js.erb`
 
-```
+```javascript
 function initRealTimeNotifications() {
 	if(notifications.pusher == null) {
 		notifications.pusher = new Pusher('<%= Rails.application.secrets.pusher_key %>', {
