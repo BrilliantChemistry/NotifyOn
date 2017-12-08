@@ -254,7 +254,7 @@ function initRealTimeNotifications() {
             // Play the notification sound unless user is connected to a chat
             // channel
             if(chat.subscribedToChannel == null || data.data.is_chat != true) {
-              $('#notification-sound')[0].play();
+              $('#notification-sound')[0].play(); // make sure this is present in the view
             }
           }
         });
@@ -262,6 +262,13 @@ function initRealTimeNotifications() {
     });
   }
 }
+```
+
+Add a sound file to your view.
+
+`application.html.erb`
+```
+<audio id="notification-sound" src="<%= audio_path('new-notification.mp3') %>" style="display:none;"></audio>
 ```
 
 4. Setup a Notification Controller
@@ -445,6 +452,13 @@ function initRealTimeNotifications() {
     });
   }
 }
+```
+
+Add a sound file to your view.
+
+`application.html.erb`
+```
+<audio id="notification-sound" src="<%= audio_path('new-notification.mp3') %>" style="display:none;"></audio>
 ```
 
 
