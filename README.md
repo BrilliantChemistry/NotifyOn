@@ -83,7 +83,7 @@ Add to your model the `notify_on` config:
 notify_on :create, { to: :other_users, message: ‘{sender.first_name} sent you a message.’, email: { template: 'new_message’ } }
 
 def other_users
-	chat.other_users(author)
+  chat.other_users(author)
 end
 ```
 
@@ -102,30 +102,30 @@ Add your corresponding mailer view:
 <%= render partial: "shared/mail/header" %>
 
 <span class="preheader">
-	<%= truncate(@message.content.gsub(/[\n]+/, " "), length: 200) %>
+  <%= truncate(@message.content.gsub(/[\n]+/, " "), length: 200) %>
 </span>
 <div style="color: #999;">-- Write ABOVE THIS LINE to post a reply or
-	<%= link_to “view this on [Your Site].”, chats_url(@message.chat) %> --
+  <%= link_to “view this on [Your Site].”, chats_url(@message.chat) %> --
 </div>
 <div style="margin:0; padding:0; width:100%; line-height: 100% !important; background-color: #fff; margin-top: 15px;">
 
 <p style="font-size: 14px">
-	<%= render partial: "shared/avatar", locals: {user: @sender, :size => :small} %>
-	<% if @message.chat.messages.count > 1 %>
-		<%= @sender.first_name %>
-		has replied:
-	<% else %>
-		<%= @sender.full_name %>
-		has sent you a message:
-	<% end %>
+  <%= render partial: "shared/avatar", locals: {user: @sender, :size => :small} %>
+  <% if @message.chat.messages.count > 1 %>
+    <%= @sender.first_name %>
+    has replied:
+  <% else %>
+    <%= @sender.full_name %>
+    has sent you a message:
+  <% end %>
 </p>
 <p></p>
 <%= markdown @message.filtered_content %>
 <hr>
 
 <p style="font-size: 12px; color: #999">
-	There may be more messages sent since this one. Log in to [Your Site] with your account, '<%= @recipient.email %>'
-	to view them all. <%= link_to "Go there now.", chats_url(@message.chat) %>
+  There may be more messages sent since this one. Log in to [Your Site] with your account, '<%= @recipient.email %>'
+  to view them all. <%= link_to "Go there now.", chats_url(@message.chat) %>
 </p>
 
 <%= render partial: "shared/mail/footer" %>
@@ -187,13 +187,13 @@ Again this is very UI specific, but here is code and instructions to help.
 
 ```erb
 <% if user_signed_in? %>
-	<script>
-		$(document).on('ready', function(){
-			if(window.usePusher == true) {
-				initRealTimeNotifications();
-			}
-		});
-	</script>
+  <script>
+    $(document).on('ready', function(){
+      if(window.usePusher == true) {
+        initRealTimeNotifications();
+      }
+    });
+  </script>
 <% end %>
 ```
 
@@ -206,61 +206,61 @@ for the new dropdown menu list. It will also update the number of notifications 
 
 ```javascript
 function initRealTimeNotifications() {
-	if(notifications.pusher == null) {
-		notifications.pusher = new Pusher('<%= Rails.application.secrets.pusher_key %>', {
-			encrypted: true
-		});
+  if(notifications.pusher == null) {
+    notifications.pusher = new Pusher('<%= Rails.application.secrets.pusher_key %>', {
+      encrypted: true
+    });
 
-		notifications.channelName = $('body').data('notifications');
+    notifications.channelName = $('body').data('notifications');
 
-		notifications.channel = notifications.pusher.subscribe(notifications.channelName);
-		notifications.channel.bind('new_notification', function(data) {
+    notifications.channel = notifications.pusher.subscribe(notifications.channelName);
+    notifications.channel.bind('new_notification', function(data) {
 
-			// In case we've logged out since binding this event
-			if($('body').data('notifications') == notifications.channelName) {
+      // In case we've logged out since binding this event
+      if($('body').data('notifications') == notifications.channelName) {
 
-				// Update the reference to the list
-				// (This is the contents of the dropdown and you must provide an endpoint to render this.)
-				$.get('/notifications', function(notifications){
-					$('#notifications-list-ref').html(notifications);
+        // Update the reference to the list
+        // (This is the contents of the dropdown and you must provide an endpoint to render this.)
+        $.get('/notifications', function(notifications){
+          $('#notifications-list-ref').html(notifications);
 
-					var focusedOnChat = false;
+          var focusedOnChat = false;
 
-					// If we are currently on
-					if (window.location.pathname == data.link) {
-						focusedOnChat = true;
-					} else if ($('#chat-window').length > 0) {
-						var urlSegments = data.link.split('/'),
-								id = parseInt(urlSegments[urlSegments.length - 1]),
-								currentId = parseInt($('#chat-window').attr('data-chat'));
-						focusedOnChat = (currentId == id);
-					}
+          // If we are currently on
+          if (window.location.pathname == data.link) {
+            focusedOnChat = true;
+          } else if ($('#chat-window').length > 0) {
+            var urlSegments = data.link.split('/'),
+                id = parseInt(urlSegments[urlSegments.length - 1]),
+                currentId = parseInt($('#chat-window').attr('data-chat'));
+            focusedOnChat = (currentId == id);
+          }
 
-					// If user is already on the right page, we're not going to animate the
-					// notification.
-					if(focusedOnChat && data.is_chat) {
-						// Hit the notification's link so it can be marked as read.
-						$.get(data.link);
-						// Remove the unread icon.
-						$('.notification-list li > a > span.unread').first().remove();
-					} else {
-						// Update our unread notifications count
-						if($('#alert-icon').find('.notifications-flag').length == 0) {
-							$('#alert-icon').prepend('<span class="notifications-flag"></span>');
-						}
-						var unread = $('#notifications-list').attr('data-unread')
-						$('#alert-icon').find('.notifications-flag').text(unread);
+          // If user is already on the right page, we're not going to animate the
+          // notification.
+          if(focusedOnChat && data.is_chat) {
+            // Hit the notification's link so it can be marked as read.
+            $.get(data.link);
+            // Remove the unread icon.
+            $('.notification-list li > a > span.unread').first().remove();
+          } else {
+            // Update our unread notifications count
+            if($('#alert-icon').find('.notifications-flag').length == 0) {
+              $('#alert-icon').prepend('<span class="notifications-flag"></span>');
+            }
+            var unread = $('#notifications-list').attr('data-unread')
+            $('#alert-icon').find('.notifications-flag').text(unread);
 
-						// Play the notification sound unless user is connected to a chat
-						// channel
-						if(chat.subscribedToChannel == null || data.data.is_chat != true) {
-							$('#notification-sound')[0].play();
-						}
-					}
-				});
-			}
-		});
-	}
+            // Play the notification sound unless user is connected to a chat
+            // channel
+            if(chat.subscribedToChannel == null || data.data.is_chat != true) {
+              $('#notification-sound')[0].play();
+            }
+          }
+        });
+      }
+    });
+  }
 }
 ```
 
@@ -275,33 +275,33 @@ This handles three things (three routes):
 ```ruby
 class NotificationsController < ApplicationController
 
-	def index
-		if request.xhr?
-			render :layout => false
-		else
-			redirect_to dashboard_path
-		end
-	end
+  def index
+    if request.xhr?
+      render :layout => false
+    else
+      redirect_to dashboard_path
+    end
+  end
 
-	def show
-		if current_user.notifications.find_by_id(params[:id]).nil?
-			not_found
-		else
-			@notification = current_user.notifications.find_by_id(params[:id])
-			@notification.read!
-			if @notification.trigger.nil?
-				@notification.destroy
-				redirect_to root_path, :alert => 'Could not locate notification link.'
-			else
-				redirect_to @notification.link, :only_path => true
-			end
-		end
-	end
+  def show
+    if current_user.notifications.find_by_id(params[:id]).nil?
+      not_found
+    else
+      @notification = current_user.notifications.find_by_id(params[:id])
+      @notification.read!
+      if @notification.trigger.nil?
+        @notification.destroy
+        redirect_to root_path, :alert => 'Could not locate notification link.'
+      else
+        redirect_to @notification.link, :only_path => true
+      end
+    end
+  end
 
-	def markread
-		current_user.notifications.unread.each { |notification| notification.read! }
-		redirect_to request.referrer || root_path
-	end
+  def markread
+    current_user.notifications.unread.each { |notification| notification.read! }
+    redirect_to request.referrer || root_path
+  end
 
 end
 ```
@@ -309,9 +309,9 @@ end
 Set your routes:
 
 ```ruby
-	get 'notifications/markread', :as => 'markread_notifications'
-	get '/notifications' => "notifications#index", :as => :notifications
-	get '/notifications/:id' => "notifications#show", :as => :notification
+  get 'notifications/markread', :as => 'markread_notifications'
+  get '/notifications' => "notifications#index", :as => :notifications
+  get '/notifications/:id' => "notifications#show", :as => :notification
 
 ```
 
@@ -321,41 +321,41 @@ View for rendering list of notifications in menu:
 
 ```erb
 <div id="notifications-list" data-unread="<%= current_user.notifications.unread.count %>">
-	<%= render 'list' %>
+  <%= render 'list' %>
 </div>
 ```
 
 `views/notifications/_list.html`
 ```erb
 <ul class='notification-list'>
-	<% if current_user %>
-		<%= content_tag(:li, 'No Notifications') unless has_notifications? %>
+  <% if current_user %>
+    <%= content_tag(:li, 'No Notifications') unless has_notifications? %>
 
-		<% recent_notifications.each do |n| %>
-			<li class="<%= 'unread' if n.unread? %>">
-				<%= link_to(notification_path(n)) do %>
-					<%= content_tag(:span, '', :class => 'icon unread') if n.unread? %>
-					<% if n.sender.present? && n.sender.avatar.present? %>
-						<%= render partial: "shared/avatar",
-											 locals: { user: n.sender, size: "small" } %>
-					<% end %>
+    <% recent_notifications.each do |n| %>
+      <li class="<%= 'unread' if n.unread? %>">
+        <%= link_to(notification_path(n)) do %>
+          <%= content_tag(:span, '', :class => 'icon unread') if n.unread? %>
+          <% if n.sender.present? && n.sender.avatar.present? %>
+            <%= render partial: "shared/avatar",
+                       locals: { user: n.sender, size: "small" } %>
+          <% end %>
 
-					<span class='description'><%= n.description %></span>
-					&nbsp;
-					<span class='when'><%= time_ago_in_words n.created_at %> ago.</span>
-				<% end %>
-			</li>
-		<% end %>
+          <span class='description'><%= n.description %></span>
+          &nbsp;
+          <span class='when'><%= time_ago_in_words n.created_at %> ago.</span>
+        <% end %>
+      </li>
+    <% end %>
 
-		<% if unread_notifications.present? %>
-			<li class='mark-as-read-button'>
-				<a href='<%= markread_notifications_path %>' method='post'>
-					Mark all as read!
-				</a>
-			</li>
-		<% end %>
+    <% if unread_notifications.present? %>
+      <li class='mark-as-read-button'>
+        <a href='<%= markread_notifications_path %>' method='post'>
+          Mark all as read!
+        </a>
+      </li>
+    <% end %>
 
-	<% end %>
+  <% end %>
 </ul>
 ```
 
@@ -379,13 +379,13 @@ Again this is very UI specific, but here is code and instructions to help.
 
 ```erb
 <% if user_signed_in? %>
-	<script>
-		$(document).on('ready', function(){
-			if(window.usePusher == true) {
-				initRealTimeNotifications();
-			}
-		});
-	</script>
+  <script>
+    $(document).on('ready', function(){
+      if(window.usePusher == true) {
+        initRealTimeNotifications();
+      }
+    });
+  </script>
 <% end %>
 ```
 
@@ -398,52 +398,52 @@ for the new dropdown menu list. It will also update the number of notifications 
 
 ```javascript
 function initRealTimeNotifications() {
-	if(notifications.pusher == null) {
-		notifications.pusher = new Pusher('<%= Rails.application.secrets.pusher_key %>', {
-			encrypted: true
-		});
+  if(notifications.pusher == null) {
+    notifications.pusher = new Pusher('<%= Rails.application.secrets.pusher_key %>', {
+      encrypted: true
+    });
 
-		notifications.channelName = $('body').data('notifications');
+    notifications.channelName = $('body').data('notifications');
 
-		notifications.channel = notifications.pusher.subscribe(notifications.channelName);
-		notifications.channel.bind('new_notification', function(data) {
+    notifications.channel = notifications.pusher.subscribe(notifications.channelName);
+    notifications.channel.bind('new_notification', function(data) {
 
-			// In case we've logged out since binding this event
-			if($('body').data('notifications') == notifications.channelName) {
+      // In case we've logged out since binding this event
+      if($('body').data('notifications') == notifications.channelName) {
 
-				var focusedAlready = false;
+        var focusedAlready = false;
 
-				// If we are currently on the notification's object's page, don't show the UI
-				if (window.location.pathname == data.link) {
-					focusedAlready = true;
-				} else if ($('#chat-window').length > 0) {
-					var urlSegments = data.link.split('/'),
-							id = parseInt(urlSegments[urlSegments.length - 1]),
-							currentId = parseInt($('#chat-window').attr('data-chat'));
-					focusedAlready = (currentId == id);
-				}
+        // If we are currently on the notification's object's page, don't show the UI
+        if (window.location.pathname == data.link) {
+          focusedAlready = true;
+        } else if ($('#chat-window').length > 0) {
+          var urlSegments = data.link.split('/'),
+              id = parseInt(urlSegments[urlSegments.length - 1]),
+              currentId = parseInt($('#chat-window').attr('data-chat'));
+          focusedAlready = (currentId == id);
+        }
 
-				// If user is already on the right page, we're not going to display the
-				// notification.
-				if(focusedAlready && data.is_chat) {
-					
-				} else {
-					// Update our unread notifications count
-					if($('#alert-icon').find('.notifications-flag').length == 0) {
-						$('#alert-icon').prepend('<span class="notifications-flag"></span>');
-					}
-					$('#alert-icon').find('.notifications-flag').html("&bul;");
+        // If user is already on the right page, we're not going to display the
+        // notification.
+        if(focusedAlready && data.is_chat) {
+          
+        } else {
+          // Update our unread notifications count
+          if($('#alert-icon').find('.notifications-flag').length == 0) {
+            $('#alert-icon').prepend('<span class="notifications-flag"></span>');
+          }
+          $('#alert-icon').find('.notifications-flag').html("&bul;");
 
-					// Play the notification sound unless user is connected to a chat
-					// channel
-					if(chat.subscribedToChannel == null || data.data.is_chat != true) {
-						$('#notification-sound')[0].play();
-					}
-				}
-				
-			}
-		});
-	}
+          // Play the notification sound unless user is connected to a chat
+          // channel
+          if(chat.subscribedToChannel == null || data.data.is_chat != true) {
+            $('#notification-sound')[0].play();
+          }
+        }
+        
+      }
+    });
+  }
 }
 ```
 
