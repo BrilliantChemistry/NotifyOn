@@ -8,9 +8,9 @@ Gem::Specification.new do |s|
   s.name        = 'notify_on'
   s.version     = NotifyOn::VERSION
   s.authors     = ['Mike Wille', 'Sean C Davis']
-  s.email       = ['service@sidedolla.com']
-  s.homepage    = 'http://www.brilliantchemistry.com/'
-  s.summary     = 'Notifications for Rails apps.'
+  s.email       = ['service@brilliantchemistry.com']
+  s.homepage    = 'https://github.com/BrilliantChemistry/NotifyOn'
+  s.summary     = 'Declaritive Notifications for Rails apps.'
   s.description = 'Simple declarative based notifications for Ruby on Rails applications.'
   s.license     = 'MIT'
   s.test_files  = Dir['spec/**/*']
