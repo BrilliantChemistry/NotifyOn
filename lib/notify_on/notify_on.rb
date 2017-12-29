@@ -7,7 +7,7 @@ class << ActiveRecord::Base
     ([self] + self.descendants).each do |klass|
       klass.class_eval do
         has_many :notifications, -> { preloaded },
-                 :class_name => NotifyOn::Notification, :as => :trigger,
+                 :class_name => 'NotifyOn::Notification', :as => :trigger,
                  :dependent => :destroy
       end
     end

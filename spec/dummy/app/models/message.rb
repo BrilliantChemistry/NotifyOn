@@ -18,7 +18,7 @@ class Message < ApplicationRecord
   # ---------------------------------------- Associations
 
   belongs_to :user
-  belongs_to :author, :class_name => User
+  belongs_to :author, :class_name => 'User'
 
   # ---------------------------------------- Validations
 
