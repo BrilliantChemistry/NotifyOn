@@ -3,9 +3,13 @@ module NotifyOn
 
     def send_email!
       return false unless can_send_email?
-      NotifyOn.configuration.mailer_class.constantize
+      begin
+        NotifyOn.configuration.mailer_class.constantize
               .notify(id, email_template, email_attachments)
               .send("deliver_#{email_delivery_timing}")
+      rescue Exception => e
+        Rails.logger.error("Unable to send notification email: #{e}")
+      end
     end
 
     def email_template
