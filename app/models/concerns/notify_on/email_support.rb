@@ -21,12 +21,17 @@ module NotifyOn
       convert_string(email_from_raw)
     end
 
+    def email_reply_to
+      convert_string(email_config.reply_to) if email_config.reply_to?
+    end
+
     def email_subject
       return email_config.subject if email_config? && email_config.subject?
       description
     end
 
     def should_save_email_id?
+      # if we are using postmark and have callbacks for read receipts, we need this to default to true...
       email_config? && email_config.save_id?
     end
 
@@ -96,6 +101,7 @@ module NotifyOn
         return NotifyOn.configuration.default_email if use_default_email?
         email_config.from
       end
+
 
   end
 end

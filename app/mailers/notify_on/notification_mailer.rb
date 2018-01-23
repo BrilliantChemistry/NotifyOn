@@ -17,6 +17,7 @@ module NotifyOn
       end
       mail :to => @recipient.email,
            :from => @notification.email_from,
+           :reply_to => @notification.email_reply_to || @notification.email_from,
            :subject => @notification.email_subject,
            :template_path => 'notifications',
            :template_name => template
