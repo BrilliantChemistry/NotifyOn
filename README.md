@@ -3,8 +3,10 @@ NotifyOn
 
 ![](https://api.travis-ci.org/BrilliantChemistry/NotifyOn.svg?branch=overhaul)
 
-NotifyOn generates automatic notifications as a result of state changes on a
-particular model in a Rails application. It supports email messages, along with
+NotifyOn is a Rails gem that generates automatic notifications as a result of changes on a
+ model object. Another way to put this is if you want to let an end user know about something that was triggered by unrelated action in your code, this library will do that.
+
+It supports email messages, along with
 third-party real-time delivery (via [Pusher](https://pusher.com)), while also storing each notification in your
 database so you can use, adjust, and display as you'd wish.
 
